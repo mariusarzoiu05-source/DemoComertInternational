@@ -291,6 +291,150 @@
       opacity: 0.7;
     }
 
+    /* ── ȘTIAȚI CĂ BUTTON ────────────────────────────────────── */
+    .stiati-wrap {
+      margin-top: 40px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.95s forwards;
+    }
+    .btn-stiati {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 13px 28px;
+      border: 1px solid var(--gold-light);
+      background: transparent;
+      font-family: 'Cinzel', serif; font-size: 10px;
+      letter-spacing: 3px; color: var(--gold-dark);
+      text-transform: uppercase; cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative; overflow: hidden;
+    }
+    .btn-stiati::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, #C9A84C08, #C9A84C18);
+      opacity: 0; transition: opacity 0.25s;
+    }
+    .btn-stiati:hover { border-color: var(--gold); color: var(--gold-dark); }
+    .btn-stiati:hover::before { opacity: 1; }
+    .btn-stiati .btn-icon { font-size: 16px; }
+
+    /* ── MODAL OVERLAY ───────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(26, 18, 9, 0.65);
+      backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--cream); border: 1px solid var(--gold-light);
+      max-width: 560px; width: 100%;
+      position: relative; overflow: hidden;
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.35s ease;
+    }
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+    .modal-top-bar {
+      height: 3px;
+      background: linear-gradient(to right, var(--gold-dark), var(--gold), var(--gold-dark));
+    }
+    .modal-header {
+      padding: 24px 28px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--gold-light);
+    }
+    .modal-title-wrap .modal-label {
+      font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 3px;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 4px;
+    }
+    .modal-title-wrap .modal-title {
+      font-family: 'Cormorant Garamond', serif; font-size: 22px;
+      font-weight: 300; color: var(--ink);
+    }
+    .modal-title-wrap .modal-title em { font-style: italic; color: var(--gold-dark); }
+    .modal-close {
+      width: 32px; height: 32px; border: 1px solid var(--gold-light);
+      background: transparent; cursor: pointer; font-size: 16px;
+      color: var(--gold-dark); display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .modal-close:hover { background: var(--gold); color: var(--white); border-color: var(--gold); }
+
+    /* ── FLASHCARD ───────────────────────────────────────────── */
+    .flashcard-area { padding: 28px 28px 0; }
+    .flashcard {
+      background: var(--white); border: 1px solid var(--gold-light);
+      min-height: 160px; padding: 28px 24px;
+      display: flex; flex-direction: column; justify-content: center;
+      text-align: center; position: relative; overflow: hidden;
+      cursor: pointer;
+    }
+    .flashcard::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: linear-gradient(to right, var(--gold-dark), var(--gold), var(--gold-dark));
+    }
+    .fc-emoji { font-size: 32px; margin-bottom: 12px; display: block; }
+    .fc-text {
+      font-family: 'Cormorant Garamond', serif; font-size: 18px;
+      font-style: italic; font-weight: 300; color: var(--ink-soft);
+      line-height: 1.6;
+    }
+    .fc-text strong { color: var(--ink); font-style: normal; font-weight: 600; }
+    .fc-source {
+      font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 1.5px;
+      color: var(--gold); text-transform: uppercase; margin-top: 14px;
+    }
+
+    /* Nav controls */
+    .flashcard-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 28px 24px; gap: 12px;
+    }
+    .fc-btn {
+      width: 36px; height: 36px; border: 1px solid var(--gold-light);
+      background: transparent; cursor: pointer; font-size: 16px;
+      color: var(--gold-dark); display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; flex-shrink: 0;
+    }
+    .fc-btn:hover { background: var(--gold); color: var(--white); border-color: var(--gold); }
+    .fc-btn:disabled { opacity: 0.3; cursor: default; }
+    .fc-btn:disabled:hover { background: transparent; color: var(--gold-dark); border-color: var(--gold-light); }
+
+    .fc-counter {
+      font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px;
+      color: var(--ink-soft); text-transform: uppercase; text-align: center; flex: 1;
+    }
+    .fc-counter span { color: var(--gold-dark); font-weight: 600; }
+
+    .fc-dots { display: flex; gap: 6px; justify-content: center; margin-top: 4px; }
+    .fc-dot {
+      width: 5px; height: 5px; background: var(--gold-light);
+      transform: rotate(45deg); transition: background 0.2s;
+    }
+    .fc-dot.active { background: var(--gold); }
+
+    /* shuffle hint */
+    .fc-hint {
+      text-align: center; padding: 0 28px 20px;
+      font-family: 'Cormorant Garamond', serif; font-size: 13px;
+      font-style: italic; color: rgba(139,105,20,0.5);
+    }
+
+    /* card flip animation */
+    @keyframes fcFlip {
+      0%   { opacity:1; transform: translateX(0); }
+      40%  { opacity:0; transform: translateX(-20px); }
+      60%  { opacity:0; transform: translateX(20px); }
+      100% { opacity:1; transform: translateX(0); }
+    }
+    .fc-anim { animation: fcFlip 0.4s ease forwards; }
+
     /* ── ANIMATIONS ──────────────────────────────────────────── */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(20px); }
@@ -355,13 +499,123 @@
 
     </div>
 
+    <!-- ȘTIAȚI CĂ BUTTON -->
+    <div class="stiati-wrap">
+      <button class="btn-stiati" onclick="openModal()">
+        <span class="btn-icon">💡</span>
+        Știați că?
+      </button>
+    </div>
+
     <footer>
       <div class="footer-ornament">
         <span></span><i></i><span></span>
       </div>
-      <p>© 2026 Antonia Ioana Burnariu &nbsp;·&nbsp; Toate drepturile rezervate</p>
+      <p>© 2025 Antonia Ioana Burnariu &nbsp;·&nbsp; Toate drepturile rezervate</p>
     </footer>
 
   </div>
+  <!-- MODAL FLASHCARDS -->
+  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal" id="modal">
+      <div class="modal-top-bar"></div>
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-label">Fapte despre comerț</div>
+          <div class="modal-title">Știați <em>că?</em></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+
+      <div class="flashcard-area">
+        <div class="flashcard" id="flashcard" onclick="nextCard()">
+          <span class="fc-emoji" id="fcEmoji"></span>
+          <div class="fc-text" id="fcText"></div>
+          <div class="fc-source" id="fcSource"></div>
+        </div>
+      </div>
+
+      <div class="flashcard-nav">
+        <button class="fc-btn" id="fcPrev" onclick="prevCard()">←</button>
+        <div>
+          <div class="fc-counter">Card <span id="fcNum">1</span> din <span id="fcTotal">1</span></div>
+          <div class="fc-dots" id="fcDots"></div>
+        </div>
+        <button class="fc-btn" id="fcNext" onclick="nextCard()">→</button>
+      </div>
+      <div class="fc-hint">Click pe card sau folosește săgețile pentru a naviga</div>
+    </div>
+  </div>
+
+  <script>
+    const FACTS = [
+      { emoji:'🚢', text:'O singură navă portcontainer modernă poate transporta marfă în valoare de <strong>peste 1 miliard de dolari</strong> — echivalentul a mii de camioane.', source:'Logistică maritimă globală' },
+      { emoji:'☕', text:'<strong>2,3 miliarde de căni</strong> de cafea sunt băute zilnic în lume. Aproape toată cafeaua din Europa este importată din Brazilia, Vietnam sau Colombia.', source:'Comerț agricol mondial' },
+      { emoji:'📱', text:'Telefonul tău a trecut prin <strong>mai mult de 30 de țări</strong> înainte să ajungă la tine — de la minele din Congo, la fabricile din China, la magazinele din România.', source:'Lanțuri globale de producție' },
+      { emoji:'🌾', text:'România este în <strong>Top 5 producători de grâu</strong> din Uniunea Europeană. Câmpurile noastre hrănesc o bună parte din Europa.', source:'Agricultură & Export RO' },
+      { emoji:'🚗', text:'Uzina Dacia din Mioveni produce anual peste <strong>300.000 de mașini</strong>, din care aproximativ 90% sunt exportate în Europa și Africa de Nord.', source:'Industria auto românească' },
+      { emoji:'🌍', text:'Comerțul internațional reprezintă aproximativ <strong>60% din PIB-ul mondial</strong>. Fără el, economia globală s-ar prăbuși în câteva săptămâni.', source:'OMC — date globale' },
+      { emoji:'🇨🇳', text:'China este <strong>cel mai mare exportator din lume</strong>, cu 14% din totalul exporturilor globale. Produce totul — de la ace la nave spațiale.', source:'Statistici OMC 2023' },
+      { emoji:'🏦', text:'Primul acord comercial scris din istorie datează din <strong>1283 î.Hr.</strong> — un tratat între faraonul Ramses II și regele hitiților pentru schimb de bunuri.', source:'Istoria comerțului' },
+      { emoji:'✈️', text:'Transportul aerian reprezintă doar <strong>1% din volumul</strong> comerțului mondial, dar <strong>35% din valoarea</strong> sa. Se transportă aur, medicamente, electronice.', source:'IATA — transport aerian' },
+      { emoji:'🛒', text:'Comerțul electronic internațional crește cu <strong>15-20% pe an</strong>. Până în 2030, se estimează că va reprezenta jumătate din tot comerțul mondial.', source:'E-commerce global' },
+      { emoji:'🇷🇴', text:'Principalii parteneri comerciali ai României sunt <strong>Germania, Italia și Franța</strong> — împreună reprezintă peste 40% din comerțul exterior al țării.', source:'INS România 2023' },
+      { emoji:'⚖️', text:'Dacă toate taxele vamale din lume ar fi eliminate, <strong>PIB-ul global ar crește cu 10%</strong> — echivalentul economiei Japoniei adăugată economiei mondiale.', source:'FMI — studiu liberalizare' },
+    ];
+
+    let current = 0;
+
+    function renderCard(anim) {
+      const f = FACTS[current];
+      const fc = document.getElementById('flashcard');
+      if (anim) {
+        fc.classList.remove('fc-anim');
+        void fc.offsetWidth; // reflow
+        fc.classList.add('fc-anim');
+      }
+      document.getElementById('fcEmoji').textContent = f.emoji;
+      document.getElementById('fcText').innerHTML = f.text;
+      document.getElementById('fcSource').textContent = f.source;
+      document.getElementById('fcNum').textContent = current + 1;
+      document.getElementById('fcTotal').textContent = FACTS.length;
+      document.getElementById('fcPrev').disabled = current === 0;
+      document.getElementById('fcNext').disabled = current === FACTS.length - 1;
+
+      // dots
+      const dots = document.getElementById('fcDots');
+      dots.innerHTML = FACTS.map((_,i) =>
+        `<div class="fc-dot ${i===current?'active':''}"></div>`
+      ).join('');
+    }
+
+    function nextCard() {
+      if (current < FACTS.length - 1) { current++; renderCard(true); }
+    }
+    function prevCard() {
+      if (current > 0) { current--; renderCard(true); }
+    }
+
+    function openModal() {
+      current = 0;
+      renderCard(false);
+      document.getElementById('modalOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    function handleOverlayClick(e) {
+      if (e.target === document.getElementById('modalOverlay')) closeModal();
+    }
+
+    // keyboard navigation
+    document.addEventListener('keydown', e => {
+      if (!document.getElementById('modalOverlay').classList.contains('open')) return;
+      if (e.key === 'ArrowRight') nextCard();
+      if (e.key === 'ArrowLeft')  prevCard();
+      if (e.key === 'Escape')     closeModal();
+    });
+  </script>
 </body>
 </html>
