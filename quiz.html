@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Comerț Internațional — Burnariu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --gold:#C9A84C; --gold-light:#E8D5A3; --gold-dark:#8B6914;
+      --cream:#FAF6EE; --cream-dark:#F0E8D5; --white:#FFFFFF;
+      --ink:#1A1209; --ink-soft:#3D2F0F;
+      --green:#1E6B42; --green-bg:#EAF6EF; --green-border:#A8D5BC;
+      --red:#7B1D1D;   --red-bg:#FDECEA;   --red-border:#E8AAAA;
+    }
+
+    html,body { min-height:100%; background:var(--cream); color:var(--ink); font-family:'Raleway',sans-serif; }
+
+    /* noise */
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity:.03;
+    }
+    /* gold left bar */
+    body::after {
+      content:''; position:fixed; top:0; left:0; width:4px; height:100%;
+      background:linear-gradient(to bottom,transparent,var(--gold),transparent);
+      opacity:.5; pointer-events:none; z-index:1;
+    }
+
+    .page { position:relative; z-index:2; max-width:780px; margin:0 auto; padding:48px 24px 80px; }
+
+    /* ── NAV ── */
+    .nav-back {
+      display:inline-flex; align-items:center; gap:7px;
+      font-family:'Cinzel',serif; font-size:9px; letter-spacing:2.5px;
+      color:var(--gold-dark); text-decoration:none; text-transform:uppercase;
+      opacity:.75; transition:opacity .2s; margin-bottom:36px;
+    }
+    .nav-back:hover { opacity:1; }
+
+    /* ── HEADER ── */
+    header { text-align:center; margin-bottom:40px; animation:fadeUp .7s ease forwards; }
+    .lbl { font-family:'Cinzel',serif; font-size:9px; letter-spacing:4px; color:var(--gold); text-transform:uppercase; margin-bottom:10px; }
+    h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(30px,5vw,50px); font-weight:300; line-height:1.15; }
+    h1 em { font-style:italic; color:var(--gold-dark); }
+    .sub { font-family:'Cormorant Garamond',serif; font-size:16px; font-style:italic; font-weight:300; color:var(--ink-soft); margin-top:8px; }
+
+    .divider { display:flex; align-items:center; gap:12px; margin:28px auto 36px; width:180px; }
+    .divider-line { flex:1; height:1px; background:var(--gold-light); }
+    .divider-icon { color:var(--gold); font-size:13px; }
+
+    /* ── PROGRESS ── */
+    .progress-wrap { margin-bottom:36px; animation:fadeUp .7s ease .1s both; }
+    .progress-top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+    .progress-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; color:var(--gold-dark); text-transform:uppercase; }
+    .progress-count { font-family:'Cormorant Garamond',serif; font-size:22px; color:var(--ink-soft); }
+    .progress-count span { color:var(--gold-dark); font-weight:600; }
+    .progress-track { height:3px; background:var(--cream-dark); position:relative; }
+    .progress-fill {
+      height:100%; background:linear-gradient(to right,var(--gold-dark),var(--gold));
+      transition:width .5s ease;
+    }
+    /* category dots */
+    .cat-dots { display:flex; gap:6px; margin-top:10px; flex-wrap:wrap; }
+    .cat-dot {
+      font-family:'Cinzel',serif; font-size:7px; letter-spacing:1.5px;
+      text-transform:uppercase; padding:3px 8px;
+      border:1px solid var(--gold-light); color:var(--gold-dark); background:transparent;
+    }
+    .cat-dot.active { background:var(--gold); color:var(--white); border-color:var(--gold); }
+
+    /* ── QUESTION CARD ── */
+    .q-card {
+      background:var(--white); border:1px solid var(--gold-light);
+      padding:36px 36px 28px; margin-bottom:20px;
+      animation:fadeUp .5s ease forwards;
+      position:relative; overflow:hidden;
+    }
+    .q-card::before {
+      content:''; position:absolute; top:0; left:0;
+      width:100%; height:3px;
+      background:linear-gradient(to right,var(--gold-dark),var(--gold),var(--gold-dark));
+    }
+    .q-category {
+      font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px;
+      color:var(--gold); text-transform:uppercase; margin-bottom:14px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .q-category::after { content:''; flex:1; height:1px; background:var(--gold-light); }
+    .q-number { font-family:'Cormorant Garamond',serif; font-size:13px; color:var(--ink-soft); margin-bottom:6px; font-style:italic; }
+    .q-text { font-family:'Cormorant Garamond',serif; font-size:clamp(17px,2.2vw,22px); font-weight:400; line-height:1.5; color:var(--ink); }
+
+    /* ── OPTIONS ── */
+    .options { display:flex; flex-direction:column; gap:10px; margin-top:28px; }
+
+    .opt {
+      display:flex; align-items:flex-start; gap:14px; padding:14px 18px;
+      border:1px solid var(--cream-dark); background:var(--cream);
+      cursor:pointer; transition:all .2s; position:relative; overflow:hidden;
+      font-family:'Raleway',sans-serif; font-size:14px; color:var(--ink);
+      text-align:left; width:100%;
+    }
+    .opt::before {
+      content:''; position:absolute; left:0; top:0;
+      width:3px; height:100%; background:var(--gold-light);
+      transition:background .2s;
+    }
+    .opt:hover:not(:disabled) { border-color:var(--gold-light); background:var(--white); }
+    .opt:hover:not(:disabled)::before { background:var(--gold); }
+
+    .opt-key {
+      font-family:'Cinzel',serif; font-size:10px; letter-spacing:1px;
+      color:var(--gold-dark); min-width:20px; padding-top:1px;
+      font-weight:600;
+    }
+    .opt-text { line-height:1.5; }
+
+    /* states */
+    .opt.correct { border-color:var(--green-border); background:var(--green-bg); cursor:default; }
+    .opt.correct::before { background:var(--green); }
+    .opt.correct .opt-key { color:var(--green); }
+
+    .opt.wrong { border-color:var(--red-border); background:var(--red-bg); cursor:default; }
+    .opt.wrong::before { background:var(--red); }
+    .opt.wrong .opt-key { color:var(--red); }
+
+    .opt.missed { border-color:var(--green-border); background:rgba(168,213,188,.12); cursor:default; }
+    .opt.missed::before { background:var(--green); }
+
+    .opt:disabled { cursor:default; }
+
+    .opt-badge {
+      margin-left:auto; font-size:16px; min-width:22px; text-align:right;
+      padding-top:1px;
+    }
+
+    /* ── EXPLANATION ── */
+    .explanation {
+      margin-top:16px; padding:18px 20px;
+      border-left:3px solid var(--gold);
+      background:linear-gradient(135deg,#FFFDF5,#FAF6EE);
+      animation:fadeUp .4s ease forwards;
+      display:none;
+    }
+    .explanation.show { display:block; }
+    .explanation-title {
+      font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px;
+      color:var(--gold-dark); text-transform:uppercase; margin-bottom:8px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .explanation-title .icon { font-size:14px; }
+    .explanation-text {
+      font-family:'Cormorant Garamond',serif; font-size:16px;
+      font-style:italic; font-weight:300; color:var(--ink-soft);
+      line-height:1.65;
+    }
+
+    /* ── NEXT BUTTON ── */
+    .btn-next {
+      display:none; width:100%; padding:14px;
+      background:linear-gradient(135deg,var(--gold-dark),var(--gold));
+      border:none; cursor:pointer; font-family:'Cinzel',serif;
+      font-size:10px; letter-spacing:3px; color:#fff; text-transform:uppercase;
+      transition:opacity .2s,transform .2s; margin-top:12px;
+    }
+    .btn-next.show { display:block; }
+    .btn-next:hover { opacity:.88; transform:translateY(-1px); }
+
+    /* ── SCORE SCREEN ── */
+    #scoreScreen { display:none; animation:fadeUp .6s ease forwards; }
+    .score-card {
+      background:var(--white); border:1px solid var(--gold-light);
+      padding:48px 40px; text-align:center; position:relative; overflow:hidden;
+    }
+    .score-card::before {
+      content:''; position:absolute; top:0; left:0; width:100%; height:4px;
+      background:linear-gradient(to right,var(--gold-dark),var(--gold),var(--gold-dark));
+    }
+    .score-flag { font-size:56px; margin-bottom:16px; display:block; }
+    .score-title { font-family:'Cormorant Garamond',serif; font-size:clamp(24px,4vw,40px); font-weight:300; }
+    .score-title em { font-style:italic; color:var(--gold-dark); }
+    .score-number {
+      font-family:'Cormorant Garamond',serif; font-size:clamp(60px,10vw,96px);
+      font-weight:300; color:var(--gold-dark); line-height:1; margin:16px 0 4px;
+    }
+    .score-denom { font-family:'Cinzel',serif; font-size:12px; letter-spacing:3px; color:var(--ink-soft); }
+    .score-message { font-family:'Cormorant Garamond',serif; font-size:18px; font-style:italic; color:var(--ink-soft); margin-top:20px; line-height:1.6; }
+
+    .score-breakdown { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:32px 0; }
+    .score-stat { padding:16px 12px; border:1px solid var(--gold-light); }
+    .score-stat-val { font-family:'Cormorant Garamond',serif; font-size:28px; color:var(--ink); }
+    .score-stat-val.g { color:var(--green); }
+    .score-stat-val.r { color:var(--red); }
+    .score-stat-lbl { font-family:'Cinzel',serif; font-size:7px; letter-spacing:2px; color:var(--gold-dark); text-transform:uppercase; margin-top:4px; }
+
+    .btn-restart {
+      display:inline-block; padding:14px 40px; margin-top:8px;
+      background:linear-gradient(135deg,var(--gold-dark),var(--gold));
+      border:none; cursor:pointer; font-family:'Cinzel',serif;
+      font-size:10px; letter-spacing:3px; color:#fff; text-transform:uppercase;
+      transition:opacity .2s,transform .2s;
+    }
+    .btn-restart:hover { opacity:.88; transform:translateY(-1px); }
+
+    /* ── FOOTER ── */
+    footer { text-align:center; margin-top:48px; opacity:0; animation:fadeUp .7s ease .5s forwards; }
+    .footer-orn { display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:10px; }
+    .footer-orn span { width:36px; height:1px; background:var(--gold-light); }
+    .footer-orn i { width:5px; height:5px; background:var(--gold-light); transform:rotate(45deg); display:inline-block; }
+    footer p { font-family:'Cormorant Garamond',serif; font-size:12px; color:var(--gold-dark); font-style:italic; opacity:.6; }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+    @media(max-width:560px){
+      .q-card { padding:24px 20px 20px; }
+      .score-breakdown { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <a class="nav-back" href="index.html">← Înapoi</a>
+
+  <!-- HEADER -->
+  <header>
+    <p class="lbl">Evaluare Cunoștințe</p>
+    <h1>Quiz <em>Comerț</em><br>Internațional</h1>
+    <p class="sub">Testează-ți cunoștințele despre teoria și practica schimburilor comerciale</p>
+  </header>
+
+  <div class="divider"><div class="divider-line"></div><span class="divider-icon">✦</span><div class="divider-line"></div></div>
+
+  <!-- QUIZ -->
+  <div id="quizScreen">
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-top">
+        <span class="progress-label">Progres</span>
+        <span class="progress-count"><span id="qNum">1</span> / 15</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+      </div>
+      <div class="cat-dots" id="catDots"></div>
+    </div>
+
+    <!-- Question Card -->
+    <div class="q-card" id="qCard">
+      <div class="q-category" id="qCategory">—</div>
+      <div class="q-number" id="qNumber">Întrebarea 1</div>
+      <div class="q-text" id="qText">—</div>
+      <div class="options" id="optionsWrap"></div>
+      <div class="explanation" id="explanation">
+        <div class="explanation-title"><span class="icon">📖</span> Explicație</div>
+        <div class="explanation-text" id="explanationText"></div>
+      </div>
+    </div>
+
+    <button class="btn-next" id="btnNext" onclick="nextQ()">Următoarea întrebare →</button>
+  </div>
+
+  <!-- SCORE -->
+  <div id="scoreScreen">
+    <div class="score-card">
+      <span class="score-flag" id="scoreFlag">🏆</span>
+      <div class="score-title">Rezultatul <em>tău</em></div>
+      <div class="score-number" id="scoreNum">0</div>
+      <div class="score-denom">din 15 întrebări corecte</div>
+      <p class="score-message" id="scoreMsg"></p>
+      <div class="score-breakdown">
+        <div class="score-stat"><div class="score-stat-val g" id="sCorrect">0</div><div class="score-stat-lbl">Corecte</div></div>
+        <div class="score-stat"><div class="score-stat-val r" id="sWrong">0</div><div class="score-stat-lbl">Greșite</div></div>
+        <div class="score-stat"><div class="score-stat-val" id="sPct">0%</div><div class="score-stat-lbl">Scor final</div></div>
+      </div>
+      <button class="btn-restart" onclick="restartQuiz()">✦ &nbsp; Reia Quiz-ul</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-orn"><span></span><i></i><span></span></div>
+    <p>© 2025 Antonia Ioana Burnariu &nbsp;·&nbsp; Comerț Internațional</p>
+  </footer>
+
+</div>
+<script>
+const QUESTIONS = [
+  // ── CONCEPTE FUNDAMENTALE ──────────────────────────────────────────────
+  {
+    cat: 'Concepte Fundamentale',
+    q: 'Ce reprezintă comerțul internațional?',
+    opts: [
+      'Schimbul de bunuri și servicii exclusiv între firme private',
+      'Totalitatea tranzacțiilor comerciale de bunuri și servicii între state sau entități din țări diferite',
+      'Comerțul desfășurat doar în cadrul Uniunii Europene',
+      'Exportul de materii prime către țările în curs de dezvoltare',
+    ],
+    correct: 1,
+    explanation: 'Comerțul internațional reprezintă ansamblul tranzacțiilor economice — bunuri, servicii, capital — realizate între rezidenți ai unor țări diferite, indiferent de forma de proprietate sau de spațiul geografic implicat.'
+  },
+  {
+    cat: 'Concepte Fundamentale',
+    q: 'Care este diferența esențială dintre export și import?',
+    opts: [
+      'Exportul implică bunuri, importul implică doar servicii',
+      'Exportul înseamnă vânzarea de bunuri/servicii în străinătate, iar importul cumpărarea din străinătate',
+      'Exportul se realizează doar de stat, importul de firme private',
+      'Nu există diferențe esențiale, termenii sunt interschimbabili',
+    ],
+    correct: 1,
+    explanation: 'Exportul = ieșirea mărfurilor/serviciilor din țara de origine spre o altă țară (generează valută). Importul = intrarea mărfurilor/serviciilor din altă țară (consumă valută). Balanța comercială reflectă diferența dintre acestea.'
+  },
+  {
+    cat: 'Concepte Fundamentale',
+    q: 'Ce înțelegem prin "balanța comercială"?',
+    opts: [
+      'Valoarea totală a exporturilor unei țări într-un an',
+      'Diferența dintre valoarea exporturilor și valoarea importurilor într-o perioadă',
+      'Suma tuturor investițiilor străine directe',
+      'Totalul datoriei externe a unui stat',
+    ],
+    correct: 1,
+    explanation: 'Balanța comercială = Export − Import. Dacă exporturile depășesc importurile, balanța este activă (excedentară). În caz contrar, balanța este pasivă (deficitară). Este un indicator esențial al competitivității unei economii.'
+  },
+  // ── CLASIFICAREA COMERȚULUI ────────────────────────────────────────────
+  {
+    cat: 'Clasificare',
+    q: 'Care dintre acestea reprezintă o formă de comerț internațional "invizibil"?',
+    opts: [
+      'Exportul de automobile',
+      'Importul de grâu',
+      'Turismul internațional și serviciile financiare',
+      'Exportul de mobilă',
+    ],
+    correct: 2,
+    explanation: 'Comerțul "invizibil" (sau comerțul cu servicii) include turismul, transporturile internaționale, serviciile financiare, asigurările și alte servicii care nu implică transferul fizic al unui bun material.'
+  },
+  {
+    cat: 'Clasificare',
+    q: 'Ce este comerțul de tranzit?',
+    opts: [
+      'Vânzarea bunurilor direct consumatorilor finali din altă țară',
+      'Trecerea mărfurilor printr-o țară intermediară, fără ca aceasta să fie destinatarul final',
+      'Schimbul de bunuri între două țări fără utilizarea monedei',
+      'Comerțul realizat exclusiv prin intermediul porturilor maritime',
+    ],
+    correct: 1,
+    explanation: 'Comerțul de tranzit presupune că marfa traversează teritoriul unei țări intermediare (țara de tranzit) fără a fi destinată consumului în acea țară. Țara de tranzit poate percepe taxe de tranzit și câștigă venituri din servicii logistice.'
+  },
+  {
+    cat: 'Clasificare',
+    q: 'Cum se numește schimbul de mărfuri dintre două țări fără utilizarea banilor?',
+    opts: [
+      'Comerț de compensație',
+      'Barter internațional',
+      'Comerț preferențial',
+      'Clearing bilateral',
+    ],
+    correct: 1,
+    explanation: 'Barterul internațional (trocul) reprezintă schimbul direct de bunuri contra bunuri, fără implicarea monedei. Este utilizat în relații bilaterale speciale sau în perioadele de criză valutară, deși devine tot mai rar în economia modernă.'
+  },
+  // ── POLITICI COMERCIALE ────────────────────────────────────────────────
+  {
+    cat: 'Politici Comerciale',
+    q: 'Ce instrument de politică comercială restricționează CANTITATIV importurile?',
+    opts: [
+      'Taxa vamală ad valorem',
+      'Subvenția la export',
+      'Contingentul (cota) de import',
+      'Dumping-ul',
+    ],
+    correct: 2,
+    explanation: 'Contingentul (quota) de import este o limită cantitativă impusă importurilor unui anumit produs într-o perioadă determinată. Spre deosebire de taxele vamale care acționează prin preț, contingentele restricționează direct volumul fizic al importurilor.'
+  },
+  {
+    cat: 'Politici Comerciale',
+    q: 'Ce înseamnă o taxă vamală "ad valorem"?',
+    opts: [
+      'O taxă fixă per unitate de produs importat',
+      'O taxă calculată ca procent din valoarea mărfii importate',
+      'O taxă aplicată doar produselor de lux',
+      'O taxă reciprocă între două state partenere',
+    ],
+    correct: 1,
+    explanation: 'Taxa vamală ad valorem se calculează ca procent (%) din valoarea în vamă a mărfii. Exemplu: 10% ad valorem pe un produs de 1.000 EUR = 100 EUR taxă. Este cea mai utilizată formă de taxă vamală în comerțul internațional modern.'
+  },
+  {
+    cat: 'Politici Comerciale',
+    q: 'Ce reprezintă "dumping-ul" în comerțul internațional?',
+    opts: [
+      'Exportul de mărfuri la un preț mai mic decât costul de producție sau prețul intern',
+      'Impunerea de taxe vamale prohibitive la import',
+      'Acordarea de subvenții interne producătorilor locali',
+      'Blocarea importurilor prin reglementări tehnice excesive',
+    ],
+    correct: 0,
+    explanation: 'Dumping-ul înseamnă vânzarea unui produs pe piața externă la un preț sub costul de producție sau sub prețul practicat pe piața internă. Este considerată practică neloială de comerț și OMC permite statelor să aplice taxe antidumping ca măsură de apărare.'
+  },
+  // ── ORGANISME INTERNAȚIONALE ───────────────────────────────────────────
+  {
+    cat: 'Organisme Internaționale',
+    q: 'Care este rolul principal al Organizației Mondiale a Comerțului (OMC)?',
+    opts: [
+      'Finanțarea proiectelor de infrastructură în țările în curs de dezvoltare',
+      'Reglementarea comerțului internațional și soluționarea disputelor comerciale între state',
+      'Stabilirea cursurilor de schimb valutar la nivel global',
+      'Administrarea rezervelor de aur ale băncilor centrale',
+    ],
+    correct: 1,
+    explanation: 'OMC (fondată în 1995, succesoarea GATT) are ca misiune liberalizarea comerțului mondial, oferind un cadru de negociere a acordurilor comerciale și un mecanism de soluționare a disputelor dintre state membre (195 de membri în prezent).'
+  },
+  {
+    cat: 'Organisme Internaționale',
+    q: 'Ce este INCOTERMS?',
+    opts: [
+      'Un organism internațional de arbitraj comercial',
+      'O serie de termeni comerciali internaționali standardizați care definesc obligațiile vânzătorului și cumpărătorului',
+      'Un sistem de clasificare tarifară a mărfurilor',
+      'Un tratat multilateral privind drepturile de proprietate intelectuală',
+    ],
+    correct: 1,
+    explanation: 'INCOTERMS (International Commercial Terms) sunt reguli standardizate publicate de Camera Internațională de Comerț (ICC) care definesc clar cine suportă costurile și riscurile în tranzacțiile internaționale. Exemple: FOB, CIF, EXW, DDP.'
+  },
+  // ── INTEGRARE ECONOMICĂ ────────────────────────────────────────────────
+  {
+    cat: 'Integrare Economică',
+    q: 'Care este ordinea corectă a etapelor integrării economice, de la cea mai simplă la cea mai complexă?',
+    opts: [
+      'Uniune vamală → Zonă liberă schimb → Piață comună → Uniune economică',
+      'Zonă liberă schimb → Uniune vamală → Piață comună → Uniune economică',
+      'Piață comună → Zonă liberă schimb → Uniune vamală → Uniune economică',
+      'Uniune economică → Piață comună → Uniune vamală → Zonă liberă schimb',
+    ],
+    correct: 1,
+    explanation: 'Etapele clasice ale integrării economice (modelul Balassa): 1) Zonă de liber schimb (eliminarea taxelor între membri), 2) Uniune vamală (tarif extern comun), 3) Piață comună (libertatea factorilor de producție), 4) Uniune economică și monetară.'
+  },
+  {
+    cat: 'Integrare Economică',
+    q: 'Ce implică o "uniune vamală" față de o simplă zonă de liber schimb?',
+    opts: [
+      'Eliminarea totală a oricăror bariere comerciale cu toate țările lumii',
+      'Adoptarea unei monede comune între statele membre',
+      'Un tarif vamal extern comun față de țările terțe, pe lângă eliminarea taxelor interne',
+      'Armonizarea completă a legislațiilor fiscale naționale',
+    ],
+    correct: 2,
+    explanation: 'Uniunea vamală adaugă față de zona de liber schimb un tarif vamal extern comun (TVEC), aplicat uniform de toți membrii față de importurile din afara uniunii. Exemple: Uniunea Europeană și Turcia au o uniune vamală parțială.'
+  },
+  // ── INSTRUMENTE DE PLATĂ ───────────────────────────────────────────────
+  {
+    cat: 'Instrumente de Plată',
+    q: 'Ce este acreditivul documentar (Letter of Credit) în comerțul internațional?',
+    opts: [
+      'Un împrumut acordat de banca exportatorului pentru finanțarea producției',
+      'Un angajament bancar prin care banca importatorului garantează plata exportatorului dacă acesta prezintă documentele conforme',
+      'Un document de transport utilizat exclusiv în transportul maritim',
+      'O poliță de asigurare pentru mărfurile transportate internațional',
+    ],
+    correct: 1,
+    explanation: 'Acreditivul documentar (L/C) este cel mai sigur instrument de plată în comerțul internațional. Banca emitentă (a importatorului) se angajează irevocabil să plătească exportatorului suma convenită, dacă acesta prezintă documentele specificate (factură, conosament, certificat de origine etc.).'
+  },
+  {
+    cat: 'Instrumente de Plată',
+    q: 'Ce reprezintă "conosamentul" (Bill of Lading) în transportul maritim?',
+    opts: [
+      'O poliță de asigurare maritimă obligatorie',
+      'Un document care atestă că marfa a fost predată transportatorului, servind drept titlu de proprietate și contract de transport',
+      'Un certificat de conformitate cu normele sanitare internaționale',
+      'O autorizație de export eliberată de autoritățile vamale',
+    ],
+    correct: 1,
+    explanation: 'Conosamentul (Bill of Lading) îndeplinește trei funcții esențiale: (1) chitanță pentru marfa preluată de transportator, (2) contract de transport maritim, (3) document de titlu negociabil — cel care deține conosamentul deține marfa. Este indispensabil în comerțul maritim internațional.'
+  },
+];
+
+const KEYS = ['A','B','C','D'];
+let current = 0, score = 0, wrong = 0, answered = false;
+
+function renderQ(){
+  const q = QUESTIONS[current];
+  answered = false;
+
+  // progress
+  document.getElementById('qNum').textContent = current+1;
+  document.getElementById('progressFill').style.width = `${(current/QUESTIONS.length)*100}%`;
+
+  // category dots
+  const cats = [...new Set(QUESTIONS.map(x=>x.cat))];
+  document.getElementById('catDots').innerHTML = cats.map(c=>
+    `<span class="cat-dot ${c===q.cat?'active':''}">${c}</span>`
+  ).join('');
+
+  // question
+  document.getElementById('qCategory').textContent = q.cat;
+  document.getElementById('qNumber').textContent = `Întrebarea ${current+1} din ${QUESTIONS.length}`;
+  document.getElementById('qText').textContent = q.q;
+
+  // options
+  document.getElementById('optionsWrap').innerHTML = q.opts.map((o,i)=>
+    `<button class="opt" onclick="answer(${i})" id="opt${i}">
+      <span class="opt-key">${KEYS[i]}.</span>
+      <span class="opt-text">${o}</span>
+      <span class="opt-badge" id="badge${i}"></span>
+    </button>`
+  ).join('');
+
+  // hide explanation + next
+  const exp = document.getElementById('explanation');
+  exp.classList.remove('show');
+  document.getElementById('btnNext').classList.remove('show');
+
+  // animate card
+  const card = document.getElementById('qCard');
+  card.style.opacity='0'; card.style.transform='translateY(16px)';
+  setTimeout(()=>{ card.style.transition='opacity .4s ease, transform .4s ease'; card.style.opacity='1'; card.style.transform='translateY(0)'; },30);
+}
+
+function answer(idx){
+  if(answered) return;
+  answered = true;
+  const q = QUESTIONS[current];
+  const isCorrect = idx === q.correct;
+
+  if(isCorrect) score++;
+  else wrong++;
+
+  // style options
+  q.opts.forEach((_,i)=>{
+    const btn = document.getElementById(`opt${i}`);
+    const badge = document.getElementById(`badge${i}`);
+    btn.disabled = true;
+    if(i === q.correct){
+      btn.classList.add('correct');
+      badge.textContent = '✓';
+    } else if(i === idx && !isCorrect){
+      btn.classList.add('wrong');
+      badge.textContent = '✗';
+    }
+  });
+
+  // show explanation only if wrong
+  if(!isCorrect){
+    const exp = document.getElementById('explanation');
+    document.getElementById('explanationText').textContent = q.explanation;
+    exp.classList.add('show');
+  }
+
+  // next button
+  const btnNext = document.getElementById('btnNext');
+  btnNext.classList.add('show');
+  btnNext.textContent = current < QUESTIONS.length-1 ? 'Următoarea întrebare →' : 'Vezi rezultatul ✦';
+}
+
+function nextQ(){
+  current++;
+  if(current >= QUESTIONS.length){ showScore(); return; }
+  renderQ();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function showScore(){
+  document.getElementById('quizScreen').style.display='none';
+  const ss = document.getElementById('scoreScreen');
+  ss.style.display='block';
+
+  const pct = Math.round((score/QUESTIONS.length)*100);
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('sCorrect').textContent = score;
+  document.getElementById('sWrong').textContent = wrong;
+  document.getElementById('sPct').textContent = pct+'%';
+
+  let flag, msg;
+  if(pct>=90){ flag='🏆'; msg='Rezultat excepțional! Ai demonstrat o înțelegere profundă a comerțului internațional.'; }
+  else if(pct>=70){ flag='🎓'; msg='Rezultat foarte bun! Cunoști bine principiile fundamentale ale schimburilor comerciale internaționale.'; }
+  else if(pct>=50){ flag='📚'; msg='Rezultat satisfăcător. Revizuiește capitolele despre politici comerciale și instrumente de plată.'; }
+  else { flag='💡'; msg='Mai este de lucru! Parcurge materialul de curs și reîncearcă — progresul vine cu perseverență.'; }
+
+  document.getElementById('scoreFlag').textContent = flag;
+  document.getElementById('scoreMsg').textContent = msg;
+  document.getElementById('progressFill').style.width='100%';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function restartQuiz(){
+  current=0; score=0; wrong=0; answered=false;
+  document.getElementById('scoreScreen').style.display='none';
+  document.getElementById('quizScreen').style.display='block';
+  renderQ();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// init
+renderQ();
+</script>
+</body>
+</html>
