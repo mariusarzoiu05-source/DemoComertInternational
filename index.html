@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Antonia Ioana Burnariu — Comerț Internațional</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold:       #C9A84C;
+      --gold-light: #E8D5A3;
+      --gold-dark:  #8B6914;
+      --cream:      #FAF6EE;
+      --cream-dark: #F0E8D5;
+      --white:      #FFFFFF;
+      --ink:        #1A1209;
+      --ink-soft:   #3D2F0F;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'Raleway', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ─────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── DECORATIVE SIDE LINES ─────────────────────────────────── */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ── PAGE WRAPPER ─────────────────────────────────────────── */
+    .page {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 24px;
+    }
+
+    /* ── TOP ORNAMENT ─────────────────────────────────────────── */
+    .ornament {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease forwards;
+    }
+    .ornament-line {
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold));
+    }
+    .ornament-line.right {
+      background: linear-gradient(to left, transparent, var(--gold));
+    }
+    .ornament-diamond {
+      width: 8px; height: 8px;
+      background: var(--gold);
+      transform: rotate(45deg);
+    }
+
+    /* ── HEADER ───────────────────────────────────────────────── */
+    header {
+      text-align: center;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.15s forwards;
+    }
+    .label-top {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(38px, 6vw, 68px);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--ink);
+      letter-spacing: 1px;
+    }
+    .name em {
+      font-style: italic;
+      color: var(--gold-dark);
+    }
+    .subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(10px, 1.4vw, 13px);
+      letter-spacing: 3px;
+      color: var(--ink-soft);
+      margin-top: 16px;
+      font-weight: 400;
+    }
+
+    /* ── DIVIDER ─────────────────────────────────────────────── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 36px auto;
+      width: 260px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.3s forwards;
+    }
+    .divider-line { flex: 1; height: 1px; background: var(--gold-light); }
+    .divider-icon {
+      font-size: 18px;
+      color: var(--gold);
+    }
+
+    /* ── INTRO TEXT ──────────────────────────────────────────── */
+    .intro {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(16px, 2vw, 20px);
+      font-style: italic;
+      font-weight: 300;
+      color: var(--ink-soft);
+      text-align: center;
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 56px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
+    }
+
+    /* ── CARDS GRID ──────────────────────────────────────────── */
+    .cards {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 960px;
+      width: 100%;
+    }
+
+    .card {
+      position: relative;
+      background: var(--white);
+      border: 1px solid var(--gold-light);
+      width: 260px;
+      padding: 44px 32px 36px;
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      overflow: hidden;
+      opacity: 0;
+      transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    }
+    .card:nth-child(1) { animation: fadeUp 0.7s ease 0.55s forwards; }
+    .card:nth-child(2) { animation: fadeUp 0.7s ease 0.7s forwards; }
+    .card:nth-child(3) { animation: fadeUp 0.7s ease 0.85s forwards; }
+
+    /* Gold fill on hover */
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, #C9A84C08, #C9A84C18);
+      opacity: 0;
+      transition: opacity 0.35s ease;
+    }
+    .card:hover::before { opacity: 1; }
+
+    /* Top gold bar */
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 3px;
+      background: linear-gradient(to right, var(--gold-dark), var(--gold), var(--gold-dark));
+      transform: scaleX(0);
+      transition: transform 0.35s ease;
+    }
+    .card:hover::after { transform: scaleX(1); }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 48px rgba(139, 105, 20, 0.12);
+      border-color: var(--gold);
+    }
+
+    .card-icon {
+      font-size: 36px;
+      margin-bottom: 20px;
+      display: block;
+      filter: saturate(0.7);
+      transition: filter 0.3s ease, transform 0.3s ease;
+    }
+    .card:hover .card-icon {
+      filter: saturate(1.2);
+      transform: scale(1.08);
+    }
+
+    .card-title {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      letter-spacing: 3px;
+      color: var(--ink);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+
+    .card-desc {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 15px;
+      font-style: italic;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      font-weight: 300;
+    }
+
+    .card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 24px;
+      font-family: 'Raleway', sans-serif;
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .card:hover .card-cta {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .card-cta::after {
+      content: '→';
+      font-size: 12px;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────── */
+    footer {
+      margin-top: 72px;
+      text-align: center;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 1s forwards;
+    }
+    .footer-ornament {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .footer-ornament span { width: 40px; height: 1px; background: var(--gold-light); }
+    .footer-ornament i { width: 5px; height: 5px; background: var(--gold-light); transform: rotate(45deg); display: inline-block; }
+    footer p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13px;
+      color: var(--gold-dark);
+      letter-spacing: 1px;
+      font-style: italic;
+      opacity: 0.7;
+    }
+
+    /* ── ANIMATIONS ──────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ──────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .card { width: 100%; max-width: 320px; }
+      .ornament-line { width: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line right"></div>
+    </div>
+
+    <header>
+      <p class="label-top">Platformă Educațională</p>
+      <h1 class="name">Antonia Ioana<br><em>Burnariu</em></h1>
+      <p class="subtitle">Comerț Internațional &nbsp;·&nbsp; Economie Globală</p>
+    </header>
+
+    <div class="divider">
+      <div class="divider-line"></div>
+      <span class="divider-icon">✦</span>
+      <div class="divider-line"></div>
+    </div>
+
+    <p class="intro">
+      Explorează instrumentele interactive concepute<br>
+      pentru înțelegerea profundă a comerțului internațional.
+    </p>
+
+    <div class="cards">
+
+      <a class="card" href="simulator.html">
+        <span class="card-icon">🌐</span>
+        <p class="card-title">Simulator</p>
+        <p class="card-desc">Simulează scenarii reale de comerț internațional și analizează impactul deciziilor economice.</p>
+        <span class="card-cta">Accesează</span>
+      </a>
+
+      <a class="card" href="quiz.html">
+        <span class="card-icon">📝</span>
+        <p class="card-title">Quiz</p>
+        <p class="card-desc">Testează-ți cunoștințele prin întrebări adaptate nivelului tău de studiu.</p>
+        <span class="card-cta">Începe</span>
+      </a>
+
+      <a class="card" href="info.html">
+        <span class="card-icon">📚</span>
+        <p class="card-title">Informații</p>
+        <p class="card-desc">Resurse, concepte esențiale și materiale de referință pentru cursurile de comerț.</p>
+        <span class="card-cta">Explorează</span>
+      </a>
+
+    </div>
+
+    <footer>
+      <div class="footer-ornament">
+        <span></span><i></i><span></span>
+      </div>
+      <p>© 2025 Antonia Ioana Burnariu &nbsp;·&nbsp; Toate drepturile rezervate</p>
+    </footer>
+
+  </div>
+</body>
+</html>
