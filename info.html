@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Informații — Comerț Internațional</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    :root {
+      --gold:#C9A84C; --gold-light:#E8D5A3; --gold-dark:#8B6914;
+      --cream:#FAF6EE; --cream-dark:#F0E8D5; --white:#FFFFFF;
+      --ink:#1A1209; --ink-soft:#3D2F0F;
+      --blue:#1A3A6B; --blue-light:#EEF3FB;
+      --green:#1E6B42; --green-light:#EAF6EF;
+      --red:#7B1D1D; --red-light:#FDECEA;
+    }
+
+    html,body { min-height:100%; background:var(--cream); color:var(--ink); font-family:'Raleway',sans-serif; }
+
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity:.03;
+    }
+    body::after {
+      content:''; position:fixed; top:0; left:0; width:4px; height:100%;
+      background:linear-gradient(to bottom,transparent,var(--gold),transparent);
+      opacity:.5; pointer-events:none; z-index:1;
+    }
+
+    .page { position:relative; z-index:2; max-width:860px; margin:0 auto; padding:48px 24px 96px; }
+
+    /* ── NAV ── */
+    .nav-back {
+      display:inline-flex; align-items:center; gap:7px;
+      font-family:'Cinzel',serif; font-size:9px; letter-spacing:2.5px;
+      color:var(--gold-dark); text-decoration:none; text-transform:uppercase;
+      opacity:.75; transition:opacity .2s; margin-bottom:36px;
+    }
+    .nav-back:hover { opacity:1; }
+
+    /* ── HEADER ── */
+    header { text-align:center; margin-bottom:16px; animation:fadeUp .7s ease forwards; }
+    .lbl { font-family:'Cinzel',serif; font-size:9px; letter-spacing:4px; color:var(--gold); text-transform:uppercase; margin-bottom:10px; }
+    h1 { font-family:'Cormorant Garamond',serif; font-size:clamp(30px,5vw,52px); font-weight:300; line-height:1.15; }
+    h1 em { font-style:italic; color:var(--gold-dark); }
+    .header-sub { font-family:'Cormorant Garamond',serif; font-size:17px; font-style:italic; font-weight:300; color:var(--ink-soft); margin-top:8px; }
+
+    .divider { display:flex; align-items:center; gap:12px; margin:24px auto 40px; width:180px; }
+    .divider-line { flex:1; height:1px; background:var(--gold-light); }
+    .divider-icon { color:var(--gold); font-size:13px; }
+
+    /* ── TABLE OF CONTENTS ── */
+    .toc {
+      background:var(--white); border:1px solid var(--gold-light);
+      padding:24px 28px; margin-bottom:48px;
+      animation:fadeUp .6s ease .1s both;
+      position:relative; overflow:hidden;
+    }
+    .toc::before {
+      content:''; position:absolute; top:0; left:0; width:100%; height:3px;
+      background:linear-gradient(to right,var(--gold-dark),var(--gold),var(--gold-dark));
+    }
+    .toc-title { font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:var(--gold-dark); text-transform:uppercase; margin-bottom:16px; }
+    .toc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:8px; }
+    .toc-item {
+      display:flex; align-items:center; gap:10px; padding:9px 12px;
+      border:1px solid var(--cream-dark); background:var(--cream);
+      text-decoration:none; color:var(--ink); transition:all .2s;
+      font-size:13px;
+    }
+    .toc-item:hover { border-color:var(--gold-light); background:var(--white); color:var(--gold-dark); }
+    .toc-item .toc-num { font-family:'Cinzel',serif; font-size:9px; color:var(--gold); min-width:18px; }
+    .toc-item .toc-icon { font-size:15px; }
+
+    /* ── SECTION ── */
+    .section { margin-bottom:56px; scroll-margin-top:24px; }
+    .section-header {
+      display:flex; align-items:center; gap:16px; margin-bottom:24px;
+      padding-bottom:14px; border-bottom:1px solid var(--gold-light);
+    }
+    .section-icon { font-size:28px; }
+    .section-num { font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:var(--gold); text-transform:uppercase; margin-bottom:3px; }
+    .section-title { font-family:'Cormorant Garamond',serif; font-size:clamp(22px,3vw,30px); font-weight:300; }
+    .section-title em { font-style:italic; color:var(--gold-dark); }
+
+    /* ── CARD ── */
+    .card {
+      background:var(--white); border:1px solid var(--gold-light);
+      padding:24px 26px; margin-bottom:14px; position:relative; overflow:hidden;
+    }
+    .card::before {
+      content:''; position:absolute; top:0; left:0; width:3px; height:100%;
+    }
+    .card.gold::before  { background:var(--gold); }
+    .card.blue::before  { background:var(--blue); }
+    .card.green::before { background:var(--green); }
+    .card.red::before   { background:var(--red); }
+
+    .card-title {
+      font-family:'Cinzel',serif; font-size:10px; letter-spacing:2px;
+      text-transform:uppercase; margin-bottom:10px;
+    }
+    .card.gold .card-title  { color:var(--gold-dark); }
+    .card.blue .card-title  { color:var(--blue); }
+    .card.green .card-title { color:var(--green); }
+    .card.red .card-title   { color:var(--red); }
+
+    .card p { font-size:14px; color:var(--ink-soft); line-height:1.7; margin-bottom:10px; }
+    .card p:last-child { margin-bottom:0; }
+    .card strong { color:var(--ink); font-weight:600; }
+
+    /* ── TWO COL ── */
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    @media(max-width:580px){ .two-col { grid-template-columns:1fr; } }
+
+    /* ── EXAMPLE BOX ── */
+    .example {
+      background:linear-gradient(135deg,#FFFDF5,#FAF6EE);
+      border:1px solid var(--gold-light); border-left:3px solid var(--gold);
+      padding:16px 20px; margin:14px 0;
+    }
+    .example-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px; color:var(--gold-dark); text-transform:uppercase; margin-bottom:6px; }
+    .example p { font-family:'Cormorant Garamond',serif; font-size:16px; font-style:italic; color:var(--ink-soft); line-height:1.6; margin:0; }
+
+    /* ── DEFINITION ── */
+    .def-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; margin-bottom:14px; }
+    .def-box { background:var(--white); border:1px solid var(--cream-dark); padding:18px 18px; }
+    .def-term { font-family:'Cinzel',serif; font-size:10px; letter-spacing:1.5px; color:var(--gold-dark); text-transform:uppercase; margin-bottom:6px; }
+    .def-meaning { font-size:13px; color:var(--ink-soft); line-height:1.6; }
+    .def-meaning em { font-family:'Cormorant Garamond',serif; font-size:15px; font-style:italic; display:block; margin-bottom:3px; color:var(--ink); }
+
+    /* ── PROS/CONS ── */
+    .pros-cons { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    @media(max-width:520px){ .pros-cons { grid-template-columns:1fr; } }
+    .pros { background:var(--green-light); border:1px solid var(--green); padding:20px; }
+    .cons { background:var(--red-light);   border:1px solid var(--red);   padding:20px; }
+    .pros-title { font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; color:var(--green); text-transform:uppercase; margin-bottom:10px; }
+    .cons-title { font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; color:var(--red);   text-transform:uppercase; margin-bottom:10px; }
+    .pros li, .cons li { font-size:13px; line-height:1.65; margin-bottom:5px; margin-left:16px; color:var(--ink-soft); }
+
+    /* ── FLOW DIAGRAM ── */
+    .flow { display:flex; align-items:center; flex-wrap:wrap; gap:0; margin:16px 0; }
+    .flow-step {
+      flex:1; min-width:100px; padding:14px 12px; text-align:center;
+      background:var(--white); border:1px solid var(--gold-light);
+      position:relative;
+    }
+    .flow-step .fs-icon { font-size:20px; display:block; margin-bottom:4px; }
+    .flow-step .fs-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:1px; color:var(--gold-dark); text-transform:uppercase; }
+    .flow-step .fs-sub { font-size:11px; color:var(--ink-soft); margin-top:3px; }
+    .flow-arrow { font-size:18px; color:var(--gold); padding:0 4px; flex-shrink:0; }
+
+    /* ── TABLE ── */
+    .tbl-wrap { overflow-x:auto; margin:14px 0; }
+    table { width:100%; border-collapse:collapse; background:var(--white); }
+    th { background:linear-gradient(135deg,var(--gold-dark),var(--gold)); color:#fff; padding:11px 14px; font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px; text-transform:uppercase; text-align:left; }
+    td { padding:10px 14px; border-bottom:1px solid var(--cream-dark); font-size:13px; color:var(--ink-soft); }
+    tr:last-child td { border-bottom:none; }
+    tr:hover td { background:#FFFDF5; }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight {
+      background:linear-gradient(135deg,var(--blue-light),#F4F7FC);
+      border:1px solid rgba(26,58,107,0.2); border-left:3px solid var(--blue);
+      padding:18px 20px; margin:14px 0;
+    }
+    .highlight-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px; color:var(--blue); text-transform:uppercase; margin-bottom:6px; }
+    .highlight p { font-size:14px; color:var(--ink-soft); line-height:1.7; margin:0; }
+
+    /* ── STAT BAND ── */
+    .stat-band { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin:14px 0; }
+    .stat-item { background:var(--white); border:1px solid var(--gold-light); padding:16px 12px; text-align:center; }
+    .stat-val { font-family:'Cormorant Garamond',serif; font-size:28px; color:var(--gold-dark); line-height:1; }
+    .stat-lbl { font-family:'Cinzel',serif; font-size:7px; letter-spacing:1.5px; color:var(--ink-soft); text-transform:uppercase; margin-top:4px; }
+
+    /* ── QUIZ LINK ── */
+    .quiz-cta {
+      background:linear-gradient(135deg,var(--gold-dark),var(--gold));
+      padding:24px 28px; margin-top:48px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    }
+    .quiz-cta-text { font-family:'Cormorant Garamond',serif; font-size:20px; font-weight:300; color:#fff; }
+    .quiz-cta-text span { font-style:italic; }
+    .quiz-cta-btn {
+      padding:12px 28px; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.5);
+      font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; color:#fff; text-decoration:none;
+      text-transform:uppercase; transition:background .2s; white-space:nowrap;
+    }
+    .quiz-cta-btn:hover { background:rgba(255,255,255,0.25); }
+
+    /* ── FOOTER ── */
+    footer { text-align:center; margin-top:48px; animation:fadeUp .7s ease .5s both; }
+    .footer-orn { display:flex; align-items:center; gap:10px; justify-content:center; margin-bottom:10px; }
+    .footer-orn span { width:36px; height:1px; background:var(--gold-light); }
+    .footer-orn i { width:5px; height:5px; background:var(--gold-light); transform:rotate(45deg); display:inline-block; }
+    footer p { font-family:'Cormorant Garamond',serif; font-size:12px; color:var(--gold-dark); font-style:italic; opacity:.6; }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+    .section { opacity:0; animation:fadeUp .6s ease forwards; }
+    .section:nth-child(1){ animation-delay:.05s }
+    .section:nth-child(2){ animation-delay:.12s }
+    .section:nth-child(3){ animation-delay:.18s }
+    .section:nth-child(4){ animation-delay:.24s }
+    .section:nth-child(5){ animation-delay:.30s }
+    .section:nth-child(6){ animation-delay:.36s }
+    .section:nth-child(7){ animation-delay:.42s }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <a class="nav-back" href="index.html">← Înapoi</a>
+
+  <!-- HEADER -->
+  <header>
+    <p class="lbl">Material de Studiu · Clasa a VIII-a</p>
+    <h1>Comerțul <em>Internațional</em></h1>
+    <p class="header-sub">Tot ce trebuie să știi — concepte, exemple și situații reale</p>
+  </header>
+
+  <div class="divider"><div class="divider-line"></div><span class="divider-icon">✦</span><div class="divider-line"></div></div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <div class="toc-title">Cuprins</div>
+    <div class="toc-grid">
+      <a class="toc-item" href="#s1"><span class="toc-num">01</span><span class="toc-icon">🌍</span>Ce este comerțul internațional?</a>
+      <a class="toc-item" href="#s2"><span class="toc-num">02</span><span class="toc-icon">📤</span>Export și Import</a>
+      <a class="toc-item" href="#s3"><span class="toc-num">03</span><span class="toc-icon">🌐</span>Globalizarea</a>
+      <a class="toc-item" href="#s4"><span class="toc-num">04</span><span class="toc-icon">🛒</span>Nevoi și comerț</a>
+      <a class="toc-item" href="#s5"><span class="toc-num">05</span><span class="toc-icon">🇷🇴</span>România în comerțul mondial</a>
+      <a class="toc-item" href="#s6"><span class="toc-num">06</span><span class="toc-icon">📊</span>Balanța comercială</a>
+      <a class="toc-item" href="#s7"><span class="toc-num">07</span><span class="toc-icon">⭐</span>Extra: Fapte interesante</a>
+    </div>
+  </div>
+
+  <!-- S1: CE ESTE COMERȚUL INTERNAȚIONAL -->
+  <div class="section" id="s1">
+    <div class="section-header">
+      <span class="section-icon">🌍</span>
+      <div>
+        <div class="section-num">01</div>
+        <h2 class="section-title">Ce este <em>comerțul internațional</em>?</h2>
+      </div>
+    </div>
+
+    <div class="card gold">
+      <div class="card-title">Definiție</div>
+      <p><strong>Comerțul internațional</strong> reprezintă schimbul de bunuri și servicii între țări diferite. Înseamnă că o țară vinde ce produce bine și cumpără ce nu poate produce sau ce este mai ieftin în altă parte.</p>
+      <p>Practic, fiecare zi din viața noastră este influențată de comerțul internațional — de la telefonul pe care îl folosim, la hainele pe care le purtăm și mâncarea de pe masă.</p>
+    </div>
+
+    <div class="example">
+      <div class="example-label">Exemplu din viața reală</div>
+      <p>Andrei bea dimineața cafea din Brazilia, poartă un tricou fabricat în Bangladesh, merge la școală cu un rucsac din China și folosește un telefon coreean. Toate acestea au ajuns în România prin comerț internațional.</p>
+    </div>
+
+    <div class="highlight">
+      <div class="highlight-label">De ce este important?</div>
+      <p>Comerțul internațional permite țărilor să aibă acces la produse pe care nu le pot fabrica singure, creează locuri de muncă și contribuie la creșterea economică. Fără el, am trăi mult mai săraci și am avea acces la mult mai puține produse.</p>
+    </div>
+
+    <div class="def-grid">
+      <div class="def-box">
+        <div class="def-term">Bunuri</div>
+        <div class="def-meaning"><em>Produse fizice care se pot atinge</em>Grâu, mașini, telefoane, mobilă, petrol.</div>
+      </div>
+      <div class="def-box">
+        <div class="def-term">Servicii</div>
+        <div class="def-meaning"><em>Activități care nu produc un obiect fizic</em>Turism, transport, servicii bancare, IT.</div>
+      </div>
+      <div class="def-box">
+        <div class="def-term">Parteneri comerciali</div>
+        <div class="def-meaning"><em>Țările cu care facem comerț</em>Principalii parteneri ai României sunt Germania, Italia, Franța.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2: EXPORT ȘI IMPORT -->
+  <div class="section" id="s2">
+    <div class="section-header">
+      <span class="section-icon">📤</span>
+      <div>
+        <div class="section-num">02</div>
+        <h2 class="section-title"><em>Export</em> și Import</h2>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="card green">
+        <div class="card-title">📤 Exportul</div>
+        <p><strong>Exportul</strong> înseamnă că o țară produce ceva și îl vinde în altă țară.</p>
+        <p>Exportul <strong>aduce bani</strong> în țară — compania primește plata din exterior, ceea ce întărește economia națională.</p>
+        <p><em style="font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;">Exemplu: O fabrică din Brașov vinde mobilă în Germania → banii vin în România.</em></p>
+      </div>
+      <div class="card blue">
+        <div class="card-title">📥 Importul</div>
+        <p><strong>Importul</strong> înseamnă că o țară cumpără produse fabricate în altă țară.</p>
+        <p>Importul <strong>consumă bani</strong> — plătim furnizori din afară. Dar ne oferă acces la produse pe care nu le avem.</p>
+        <p><em style="font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;">Exemplu: România cumpără telefoane din Coreea de Sud → banii pleacă din România.</em></p>
+      </div>
+    </div>
+
+    <div class="card gold">
+      <div class="card-title">Cum să nu le confunzi niciodată</div>
+      <p>Gândește-te la o țară ca la o persoană: <strong>exportul = vinzi ceva</strong> (primești bani), <strong>importul = cumperi ceva</strong> (dai bani). Simplu!</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <tr>
+          <th>Criteriu</th>
+          <th>Export 📤</th>
+          <th>Import 📥</th>
+        </tr>
+        <tr><td>Direcția mărfii</td><td>Iese din țară</td><td>Intră în țară</td></tr>
+        <tr><td>Direcția banilor</td><td>Intră în țară</td><td>Iese din țară</td></tr>
+        <tr><td>Efect</td><td>Câștigăm valută</td><td>Cheltuim valută</td></tr>
+        <tr><td>Exemplu RO</td><td>Grâu, mobilă, Dacia</td><td>Telefoane, petrol, cafea</td></tr>
+      </table>
+    </div>
+
+    <div class="example">
+      <div class="example-label">Situație reală</div>
+      <p>Uzina Dacia din Mioveni produce mașini și le vinde în Franța, Germania, Spania → EXPORT. România importă bananele din Ecuador pe care le găsești în supermarket → IMPORT.</p>
+    </div>
+  </div>
+
+  <!-- S3: GLOBALIZAREA -->
+  <div class="section" id="s3">
+    <div class="section-header">
+      <span class="section-icon">🌐</span>
+      <div>
+        <div class="section-num">03</div>
+        <h2 class="section-title">Globalizarea <em>comerțului</em></h2>
+      </div>
+    </div>
+
+    <div class="card gold">
+      <div class="card-title">Ce înseamnă globalizarea?</div>
+      <p><strong>Globalizarea</strong> este procesul prin care țările lumii devin din ce în ce mai conectate între ele — prin comerț, comunicare, transport și tehnologie.</p>
+      <p>Datorită globalizării, o firmă mică din Cluj poate vinde produse în SUA, iar un elev din Iași poate comanda o carte din Japonia.</p>
+    </div>
+
+    <div class="flow">
+      <div class="flow-step"><span class="fs-icon">🚢</span><span class="fs-label">Transport</span><span class="fs-sub">nave, avioane, camioane</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="fs-icon">📡</span><span class="fs-label">Comunicare</span><span class="fs-sub">internet, telefon</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="fs-icon">🏭</span><span class="fs-label">Producție</span><span class="fs-sub">fabrici globale</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step"><span class="fs-icon">🛒</span><span class="fs-label">Consum</span><span class="fs-sub">produse din toată lumea</span></div>
+    </div>
+
+    <div class="pros-cons">
+      <div class="pros">
+        <div class="pros-title">✓ Avantaje</div>
+        <ul>
+          <li>Acces la produse din toată lumea</li>
+          <li>Prețuri mai mici pentru consumatori</li>
+          <li>Locuri de muncă noi (fabrici, IT, logistică)</li>
+          <li>Transfer de tehnologie între țări</li>
+          <li>Creștere economică mai rapidă</li>
+        </ul>
+      </div>
+      <div class="cons">
+        <div class="cons-title">✗ Dezavantaje</div>
+        <ul>
+          <li>Unele fabrici locale se pot închide</li>
+          <li>Dependență față de alte țări</li>
+          <li>Poluare din transportul internațional</li>
+          <li>Inegalități — nu toate țările beneficiază egal</li>
+          <li>Crize care se răspândesc rapid global</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="example">
+      <div class="example-label">Globalizarea în geanta ta de școală</div>
+      <p>Telefonul tău: proiectat în SUA (Apple/Samsung), componente din Taiwan, asamblat în China, vândut în România. Un singur produs, 4 țări implicate — asta este globalizarea!</p>
+    </div>
+
+    <div class="highlight">
+      <div class="highlight-label">Conexiune cu obiectivele lecției</div>
+      <p>Globalizarea comerțului înseamnă că deciziile economice dintr-o parte a lumii ne afectează pe toți. Când în China se opresc fabricile (ex. pandemia COVID-19), magazinele din România rămân fără produse. Suntem cu toții conectați.</p>
+    </div>
+  </div>
+
+  <!-- S4: NEVOI ȘI COMERȚ -->
+  <div class="section" id="s4">
+    <div class="section-header">
+      <span class="section-icon">🛒</span>
+      <div>
+        <div class="section-num">04</div>
+        <h2 class="section-title">Nevoi și <em>comerț</em></h2>
+      </div>
+    </div>
+
+    <div class="card gold">
+      <div class="card-title">De ce nu poate o țară să producă singură tot?</div>
+      <p>Fiecare țară are resurse naturale, climă și populație diferite. Brazilia are climă tropicală ideală pentru cafea, Arabia Saudită are petrol, Canada are păduri imense. <strong>Nicio țară nu are tot ce îi trebuie.</strong></p>
+      <p>Comerțul internațional permite fiecărei țări să se specializeze în ce face cel mai bine și să cumpere restul de la altele.</p>
+    </div>
+
+    <div class="def-grid">
+      <div class="def-box">
+        <div class="def-term">Nevoi primare</div>
+        <div class="def-meaning"><em>Hrană, apă, îmbrăcăminte, adăpost</em>Comerțul asigură alimente din zone cu surplus (grâu din Ucraina, orez din Asia).</div>
+      </div>
+      <div class="def-box">
+        <div class="def-term">Nevoi secundare</div>
+        <div class="def-meaning"><em>Tehnologie, transport, educație</em>Țările importă tehnologie pe care nu o produc — calculatoare, mașini, medicamente.</div>
+      </div>
+      <div class="def-box">
+        <div class="def-term">Specializare</div>
+        <div class="def-meaning"><em>A produce ce știi mai bine</em>România se specializează în agricultură și industrie auto. Elveția — în ceasuri și bănci.</div>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <tr>
+          <th>Țara</th>
+          <th>Ce exportă (face bine)</th>
+          <th>Ce importă (nu are)</th>
+        </tr>
+        <tr><td>🇷🇴 România</td><td>Grâu, porumb, mobilă, mașini</td><td>Petrol, telefoane, cafea, banane</td></tr>
+        <tr><td>🇸🇦 Arabia Saudită</td><td>Petrol, gaze naturale</td><td>Alimente, tehnologie, automobile</td></tr>
+        <tr><td>🇧🇷 Brazilia</td><td>Cafea, zahăr, soia, minereuri</td><td>Mașini, electronice, produse chimice</td></tr>
+        <tr><td>🇩🇪 Germania</td><td>Mașini, utilaje, produse chimice</td><td>Petrol, gaze, materii prime</td></tr>
+        <tr><td>🇨🇳 China</td><td>Electronice, textile, jucării</td><td>Petrol, fier, produse agricole premium</td></tr>
+      </table>
+    </div>
+
+    <div class="example">
+      <div class="example-label">Impactul comerțului asupra nevoilor zilnice</div>
+      <p>Fără comerț internațional, în România nu am avea cafea, cacao, banane, telefoane sau benzină suficientă. Comerțul transformă resursele planetei în bunăstare pentru toți oamenii, nu doar pentru cei din țările bogate în resurse.</p>
+    </div>
+  </div>
+
+  <!-- S5: ROMÂNIA -->
+  <div class="section" id="s5">
+    <div class="section-header">
+      <span class="section-icon">🇷🇴</span>
+      <div>
+        <div class="section-num">05</div>
+        <h2 class="section-title">România în <em>comerțul mondial</em></h2>
+      </div>
+    </div>
+
+    <div class="stat-band">
+      <div class="stat-item"><div class="stat-val">~80%</div><div class="stat-lbl">Comerț cu UE</div></div>
+      <div class="stat-item"><div class="stat-val">#1</div><div class="stat-lbl">Producător grâu în UE (Top 5)</div></div>
+      <div class="stat-item"><div class="stat-val">Dacia</div><div class="stat-lbl">Export auto iconic</div></div>
+      <div class="stat-item"><div class="stat-val">2007</div><div class="stat-lbl">Aderare UE</div></div>
+    </div>
+
+    <div class="two-col">
+      <div class="card green">
+        <div class="card-title">📤 Ce exportă România</div>
+        <p>• <strong>Cereale</strong> — grâu, porumb, floarea-soarelui</p>
+        <p>• <strong>Automobile</strong> — Dacia (Groupe Renault)</p>
+        <p>• <strong>Mobilă</strong> — fabrici în toată Transilvania</p>
+        <p>• <strong>Produse petroliere</strong> — rafinărie Petrobrazi</p>
+        <p>• <strong>IT și servicii</strong> — programatori, software</p>
+      </div>
+      <div class="card blue">
+        <div class="card-title">📥 Ce importă România</div>
+        <p>• <strong>Petrol și gaze</strong> — parțial din Rusia, Kazahstan</p>
+        <p>• <strong>Electronice</strong> — telefoane, calculatoare</p>
+        <p>• <strong>Medicamente</strong> — industrie farmaceutică slabă</p>
+        <p>• <strong>Alimente exotice</strong> — cafea, cacao, banane</p>
+        <p>• <strong>Utilaje industriale</strong> — echipamente din Germania</p>
+      </div>
+    </div>
+
+    <div class="card gold">
+      <div class="card-title">Avantajul UE pentru România</div>
+      <p>Din 2007, România face parte din Uniunea Europeană — o piață unică de peste <strong>440 de milioane de oameni</strong>. Asta înseamnă că produsele românești pot fi vândute în Germania, Franța sau Italia fără taxe vamale suplimentare.</p>
+      <p>Principalii parteneri comerciali ai României sunt: 🇩🇪 Germania, 🇮🇹 Italia, 🇫🇷 Franța, 🇭🇺 Ungaria, 🇵🇱 Polonia.</p>
+    </div>
+
+    <div class="example">
+      <div class="example-label">Dacia — povestea unui export de succes</div>
+      <p>Uzina Dacia din Mioveni produce anual peste 300.000 de mașini, din care aproximativ 90% sunt exportate în toată Europa și Africa de Nord. Dacia Sandero este una dintre cele mai vândute mașini din Europa. Un singur model românesc, cumpărat de milioane de oameni din zeci de țări.</p>
+    </div>
+  </div>
+
+  <!-- S6: BALANȚA COMERCIALĂ -->
+  <div class="section" id="s6">
+    <div class="section-header">
+      <span class="section-icon">📊</span>
+      <div>
+        <div class="section-num">06</div>
+        <h2 class="section-title">Balanța <em>comercială</em></h2>
+      </div>
+    </div>
+
+    <div class="card gold">
+      <div class="card-title">Formula simplă</div>
+      <p style="font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;text-align:center;color:var(--gold-dark);margin:8px 0;">Balanța comercială = Exporturi − Importuri</p>
+    </div>
+
+    <div class="two-col">
+      <div class="card green">
+        <div class="card-title">✓ Balanță activă (excedent)</div>
+        <p>Exporturi <strong>&gt;</strong> Importuri</p>
+        <p>Țara câștigă mai mult decât cheltuie. <strong>Este o situație bună</strong> — înseamnă că produsele noastre sunt competitive și căutate în lume.</p>
+        <p><em style="font-family:'Cormorant Garamond',serif;font-size:14px;">Exemplu: Germania exportă 1.500 mld. € și importă 1.300 mld. € → excedent de 200 mld. €</em></p>
+      </div>
+      <div class="card red">
+        <div class="card-title">✗ Balanță pasivă (deficit)</div>
+        <p>Importuri <strong>&gt;</strong> Exporturi</p>
+        <p>Țara cheltuie mai mult decât câștigă. <strong>Poate fi o problemă</strong> dacă persistă — țara se îndatorează față de exterior.</p>
+        <p><em style="font-family:'Cormorant Garamond',serif;font-size:14px;">Exemplu: România importă mai mult decât exportă → deficit comercial.</em></p>
+      </div>
+    </div>
+
+    <div class="highlight">
+      <div class="highlight-label">Atenție — nu este întotdeauna negativ să importezi</div>
+      <p>Un deficit comercial nu este neapărat rău. Dacă importi utilaje și tehnologie pentru a-ți dezvolta industria, pe termen lung poți deveni mai competitiv. Contează CE importi, nu doar câT importi.</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <tr>
+          <th>Situație</th>
+          <th>Export</th>
+          <th>Import</th>
+          <th>Balanță</th>
+          <th>Concluzie</th>
+        </tr>
+        <tr><td>Cazul A</td><td>500 mld. €</td><td>300 mld. €</td><td>+200 mld. €</td><td>✅ Activă</td></tr>
+        <tr><td>Cazul B</td><td>400 mld. €</td><td>400 mld. €</td><td>0</td><td>⚖️ Echilibrată</td></tr>
+        <tr><td>Cazul C</td><td>200 mld. €</td><td>350 mld. €</td><td>-150 mld. €</td><td>❌ Pasivă</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- S7: EXTRA -->
+  <div class="section" id="s7">
+    <div class="section-header">
+      <span class="section-icon">⭐</span>
+      <div>
+        <div class="section-num">07</div>
+        <h2 class="section-title">Extra: <em>Fapte fascinante</em></h2>
+      </div>
+    </div>
+
+    <div class="card gold">
+      <div class="card-title">Știai că...?</div>
+      <p>📦 O singură navă portcontainer modernă poate transporta marfă în valoare de <strong>peste 1 miliard de dolari</strong> — echivalentul a mii de camioane.</p>
+      <p>☕ <strong>2,3 miliarde de căni</strong> de cafea sunt băute zilnic în lume. Aproape toată cafeaua consumată în Europa este importată din Brazilia, Vietnam sau Colombia.</p>
+      <p>📱 Telefonul tău a trecut prin <strong>mai mult de 30 de țări</strong> înainte să ajungă la tine — de la minele de cobalt din Congo, la fabricile din China, la magazinele din România.</p>
+      <p>🌾 România este în <strong>Top 5 producători de grâu</strong> din Uniunea Europeană — câmpurile noastre hrănesc o bună parte din Europa.</p>
+    </div>
+
+    <div class="card blue">
+      <div class="card-title">Recorduri mondiale în comerț</div>
+      <p>🥇 <strong>China</strong> — cel mai mare exportator din lume (14% din exporturile globale)</p>
+      <p>🥈 <strong>SUA</strong> — cel mai mare importator din lume</p>
+      <p>🥉 <strong>Germania</strong> — cel mai mare exportator european</p>
+      <p>🌍 <strong>UE</strong> — cel mai mare bloc comercial din lume ca piață unică</p>
+      <p>🚢 <strong>Portul Rotterdam</strong> (Olanda) — cel mai mare port din Europa, poarta de intrare a mărfurilor în UE</p>
+    </div>
+
+    <div class="card green">
+      <div class="card-title">Comerțul digital — viitorul</div>
+      <p>Astăzi putem cumpăra direct de pe telefon produse din China (AliExpress), SUA (Amazon) sau orice altă țară. Comerțul electronic internațional crește cu <strong>15–20% pe an</strong>.</p>
+      <p>Serviciile digitale (software, muzică, filme, servicii cloud) reprezintă o formă tot mai importantă de comerț internațional — și România este competitivă în acest domeniu prin industria sa IT.</p>
+    </div>
+
+    <div class="example">
+      <div class="example-label">Gândește global, acționează local</div>
+      <p>Când cumperi un produs românesc în loc de unul importat, susții exportul indirect — banii rămân în România, fabricile locale se dezvoltă și angajează mai mulți oameni. Fiecare decizie de cumpărare contează în marea ecuație a comerțului internațional.</p>
+    </div>
+  </div>
+
+  <!-- CTA QUIZ -->
+  <div class="quiz-cta">
+    <div class="quiz-cta-text">Ești pregătit să <span>testezi ce ai învățat</span>?</div>
+    <a class="quiz-cta-btn" href="quiz.html">Mergi la Quiz →</a>
+  </div>
+
+  <footer>
+    <div class="footer-orn"><span></span><i></i><span></span></div>
+    <p>© 2025 Antonia Ioana Burnariu &nbsp;·&nbsp; Comerț Internațional · Clasa a VIII-a</p>
+  </footer>
+
+</div>
+</body>
+</html>
