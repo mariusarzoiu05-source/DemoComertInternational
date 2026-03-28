@@ -60,6 +60,11 @@
     }
     .field-label::after { content:''; flex:1; height:1px; background:rgba(201,168,76,0.18); }
 
+    .country-select-wrap { position:relative; }
+    .country-select-wrap::after {
+      content:'▾'; position:absolute; right:13px; top:50%; transform:translateY(-50%);
+      color:var(--gold); pointer-events:none; font-size:12px;
+    }
     .sel-display {
       display:flex; align-items:center; gap:10px; padding:11px 13px;
       border:1px solid rgba(201,168,76,0.25); background:rgba(201,168,76,0.04);
@@ -222,12 +227,10 @@
       <!-- FORM -->
       <div id="inputForm">
         <div class="field-label">Țara parteneră</div>
-        <div class="sel-display">
-          <span class="sel-flag" id="selFlag">🌍</span>
-          <div>
-            <div class="sel-name" id="selName">—</div>
-            <div class="sel-hint">Click pe hartă</div>
-          </div>
+        <div class="country-select-wrap">
+          <select id="countrySelect" onchange="onDropdownSelect(this.value)">
+            <option value="">— Selectează sau click pe hartă —</option>
+          </select>
         </div>
 
         <div class="field-label">Categorie produs</div>
@@ -290,10 +293,12 @@
         </radialGradient>
       </defs>
       <rect width="100%" height="100%" fill="url(#oceanGrad)"/>
-      <g id="gGrat"></g>
-      <g id="gCountries"></g>
-      <g id="gRoute"></g>
-      <g id="gMarkers"></g>
+      <g id="gZoom">
+        <g id="gGrat"></g>
+        <g id="gCountries"></g>
+        <g id="gRoute"></g>
+        <g id="gMarkers"></g>
+      </g>
     </svg>
 
     <div class="map-tooltip" id="tooltip"></div>
@@ -376,6 +381,15 @@ async function initMap(){
 
     // Romania pulse marker
     addMarker(RO_COORD,'București',true);
+
+    // Populate dropdown
+    const dd = document.getElementById('countrySelect');
+    Object.entries(CDATA).sort((a,b)=>a[1].name.localeCompare(b[1].name)).forEach(([id,c])=>{
+      const opt = document.createElement('option');
+      opt.value = id; opt.textContent = `${c.flag} ${c.name}`;
+      dd.appendChild(opt);
+    });
+
     document.getElementById('loadOverlay').style.display='none';
 
   } catch(e) {
@@ -401,59 +415,116 @@ function addMarker(coord, label, isRo){
   }
 }
 
+function onDropdownSelect(id){
+  if(!id) return;
+  // highlight on map
+  if(selId){
+    d3.selectAll('.country-path').filter(d=>String(d.id).padStart(3,'0')===selId)
+      .classed('selected',false).attr('fill','#1B3550');
+  }
+  selId=id;
+  d3.selectAll('.country-path').filter(d=>String(d.id).padStart(3,'0')===id)
+    .classed('selected',true).attr('fill','#DDD0A0');
+  const c=CDATA[id];
+  document.getElementById('calcBtn').disabled=false;
+  document.getElementById('mapHint').textContent=`✦  ${c.flag} ${c.name} selectată  —  completează parametrii și calculează  ✦`;
+  addMarker(c.cap, c.name, false);
+}
+
 function onSelect(id, el){
-  // deselect old
   if(selId){
     d3.selectAll('.country-path').filter(d=>String(d.id).padStart(3,'0')===selId)
       .classed('selected',false).attr('fill','#1B3550');
   }
   selId=id;
   el.classed('selected',true).attr('fill','#DDD0A0');
-
+  // sync dropdown
+  document.getElementById('countrySelect').value=id;
   const c=CDATA[id];
-  document.getElementById('selFlag').textContent=c.flag;
-  document.getElementById('selName').textContent=c.name;
   document.getElementById('calcBtn').disabled=false;
   document.getElementById('mapHint').textContent=`✦  ${c.flag} ${c.name} selectată  —  completează parametrii și calculează  ✦`;
   addMarker(c.cap, c.name, false);
 }
 
-/* ── ROUTE ANIMATION ── */
+/* ── ZOOM ── */
+function zoomToRoute(from, to){
+  const area = document.querySelector('.map-area');
+  const W = area.clientWidth, H = area.clientHeight;
+  const [x1,y1] = proj(from);
+  const [x2,y2] = proj(to);
+  const cx = (x1+x2)/2, cy = (y1+y2)/2;
+  const dx = Math.abs(x2-x1), dy = Math.abs(y2-y1);
+  const pad = 180;
+  const scale = Math.min(W/(dx+pad), H/(dy+pad), 4);
+  const tx = W/2 - scale*cx;
+  const ty = H/2 - scale*cy;
+  d3.select('#mapSvg').select('g#gZoom')
+    .transition().duration(900).ease(d3.easeCubicInOut)
+    .attr('transform', `translate(${tx},${ty}) scale(${scale})`);
+}
+
+function zoomReset(){
+  d3.select('#mapSvg').select('g#gZoom')
+    .transition().duration(750).ease(d3.easeCubicInOut)
+    .attr('transform','translate(0,0) scale(1)');
+}
+
+/* ── ROUTE ANIMATION (multi-dot loop) ── */
 function animateRoute(from, to){
-  const rg=d3.select('#gRoute');
+  const rg = d3.select('#gRoute');
   rg.selectAll('*').remove();
   if(animId) cancelAnimationFrame(animId);
 
   const [x1,y1]=proj(from);
   const [x2,y2]=proj(to);
-  const mx=(x1+x2)/2, my=Math.min(y1,y2)-Math.abs(x2-x1)*.22;
+  const mx=(x1+x2)/2, my=Math.min(y1,y2)-Math.abs(x2-x1)*.24;
   const pd=`M${x1},${y1} Q${mx},${my} ${x2},${y2}`;
 
   rg.append('path').attr('class','route-glow').attr('d',pd);
   const line=rg.append('path').attr('class','trade-route').attr('d',pd);
   const len=line.node().getTotalLength();
-  line.attr('stroke-dasharray',`${len} ${len}`).attr('stroke-dashoffset',len)
-    .transition().duration(1600).ease(d3.easeQuadInOut).attr('stroke-dashoffset',0);
 
-  // cargo dot
-  const ring=rg.append('circle').attr('class','cargo-ring').attr('r',8);
-  const dot=rg.append('circle').attr('class','cargo-dot').attr('r',5);
-  let t0=null;
-  const DUR=2800;
+  // draw-in animation
+  line.attr('stroke-dasharray',`${len} ${len}`).attr('stroke-dashoffset',len)
+    .transition().duration(1400).ease(d3.easeQuadInOut).attr('stroke-dashoffset',0);
+
+  // 4 cargo dots staggered in a loop
+  const N_DOTS = 4;
+  const DUR = 3200; // ms per full traversal
+  const STAGGER = DUR / N_DOTS;
+
+  const dots = [];
+  const rings = [];
+  for(let i=0;i<N_DOTS;i++){
+    rings.push(rg.append('circle').attr('class','cargo-ring').attr('r',7).attr('opacity',0));
+    dots.push(rg.append('circle').attr('class','cargo-dot').attr('r',4).attr('opacity',0));
+  }
+
+  let startTs = null;
 
   function step(ts){
-    if(!t0) t0=ts;
-    const t=Math.min((ts-t0)/DUR,1);
-    const pt=line.node().getPointAtLength(t*len);
-    dot.attr('cx',pt.x).attr('cy',pt.y);
-    ring.attr('cx',pt.x).attr('cy',pt.y);
-    if(t<1){ animId=requestAnimationFrame(step); }
-    else {
-      ring.transition().duration(500).attr('r',18).attr('opacity',0)
-        .on('end',()=>ring.attr('r',8).attr('opacity',.35));
+    if(!startTs) startTs = ts;
+    const elapsed = ts - startTs;
+
+    for(let i=0;i<N_DOTS;i++){
+      // each dot offset by STAGGER*i, loops continuously
+      const tRaw = ((elapsed - STAGGER*i) % DUR) / DUR;
+      if(tRaw < 0){ dots[i].attr('opacity',0); rings[i].attr('opacity',0); continue; }
+      const t = Math.max(0, Math.min(tRaw, 1));
+      const pt = line.node().getPointAtLength(t * len);
+      // fade in at start, fade out at end of each loop
+      const alpha = t < 0.08 ? t/0.08 : t > 0.88 ? (1-t)/0.12 : 1;
+      dots[i].attr('cx',pt.x).attr('cy',pt.y).attr('opacity', alpha);
+      rings[i].attr('cx',pt.x).attr('cy',pt.y).attr('opacity', alpha*0.35);
     }
+    animId = requestAnimationFrame(step);
   }
-  setTimeout(()=>requestAnimationFrame(step), 1650);
+
+  // start loop after draw-in
+  setTimeout(()=>{ startTs=null; requestAnimationFrame(step); }, 1450);
+
+  // zoom into route
+  zoomToRoute(from, to);
 }
 
 /* ── CALCULATE ── */
@@ -520,15 +591,15 @@ function resetSim(){
       .classed('selected',false).attr('fill','#1B3550');
   }
   selId=null;
+  document.getElementById('countrySelect').value='';
   document.getElementById('inputForm').style.display='block';
   document.getElementById('resultsPanel').style.display='none';
-  document.getElementById('selFlag').textContent='🌍';
-  document.getElementById('selName').textContent='—';
   document.getElementById('calcBtn').disabled=true;
   document.getElementById('mapHint').textContent='✦  Click pe o țară pentru a selecta destinația  ✦';
   d3.select('#gRoute').selectAll('*').remove();
   d3.select('#gMarkers').selectAll('.dest,.dest-lbl').remove();
-  if(animId) cancelAnimationFrame(animId);
+  if(animId){ cancelAnimationFrame(animId); animId=null; }
+  zoomReset();
 }
 
 window.addEventListener('resize',()=>{
