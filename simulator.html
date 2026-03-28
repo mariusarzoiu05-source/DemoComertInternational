@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simulator Comerț — Burnariu</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;600&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold:       #C9A84C;
+      --gold-light: #E8D5A3;
+      --gold-dark:  #8B6914;
+      --cream:      #FAF6EE;
+      --cream-dark: #F0E8D5;
+      --white:      #FFFFFF;
+      --ink:        #1A1209;
+      --ink-soft:   #3D2F0F;
+      --green:      #2D7A4F;
+      --green-light:#E8F5EE;
+      --red:        #8B2020;
+      --red-light:  #FBE8E8;
+      --blue:       #1A3A6B;
+      --blue-light: #E8EEF8;
+    }
+
+    html, body { min-height: 100%; background: var(--cream); color: var(--ink); font-family: 'Raleway', sans-serif; }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03; pointer-events: none; z-index: 0;
+    }
+    body::after {
+      content: ''; position: fixed; top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+      opacity: 0.5; pointer-events: none; z-index: 1;
+    }
+
+    .page { position: relative; z-index: 2; max-width: 960px; margin: 0 auto; padding: 48px 24px 80px; }
+
+    /* ── NAV BACK ── */
+    .nav-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 3px;
+      color: var(--gold-dark); text-decoration: none; text-transform: uppercase;
+      margin-bottom: 40px; opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+    .nav-back:hover { opacity: 1; }
+
+    /* ── HEADER ── */
+    header { text-align: center; margin-bottom: 48px; animation: fadeUp 0.7s ease forwards; }
+    .label-top { font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 4px; color: var(--gold); text-transform: uppercase; margin-bottom: 12px; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(32px, 5vw, 54px); font-weight: 300; line-height: 1.1; }
+    h1 em { font-style: italic; color: var(--gold-dark); }
+    .subtitle { font-family: 'Cormorant Garamond', serif; font-size: 16px; font-style: italic; color: var(--ink-soft); margin-top: 10px; font-weight: 300; }
+
+    .divider { display: flex; align-items: center; gap: 12px; margin: 32px auto; width: 200px; }
+    .divider-line { flex: 1; height: 1px; background: var(--gold-light); }
+    .divider-icon { color: var(--gold); font-size: 14px; }
+
+    /* ── STEP 1: COUNTRY SELECTOR ── */
+    .section-label {
+      font-family: 'Cinzel', serif; font-size: 10px; letter-spacing: 3px;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 20px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--gold-light); }
+
+    .country-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px; margin-bottom: 40px;
+    }
+    .country-card {
+      border: 1px solid var(--gold-light); background: var(--white);
+      padding: 16px 12px; text-align: center; cursor: pointer;
+      transition: all 0.25s ease; position: relative; overflow: hidden;
+    }
+    .country-card::after {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(to right, var(--gold-dark), var(--gold));
+      transform: scaleX(0); transition: transform 0.25s ease;
+    }
+    .country-card:hover::after, .country-card.active::after { transform: scaleX(1); }
+    .country-card:hover, .country-card.active {
+      border-color: var(--gold); box-shadow: 0 8px 24px rgba(139,105,20,0.12);
+      transform: translateY(-3px);
+    }
+    .country-card.active { background: #FFFDF5; }
+    .country-flag { font-size: 28px; margin-bottom: 6px; display: block; }
+    .country-name { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1.5px; color: var(--ink-soft); text-transform: uppercase; }
+
+    /* ── STEP 2: PRODUCT + VALUE ── */
+    .inputs-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
+    @media(max-width:600px){ .inputs-row { grid-template-columns: 1fr; } }
+
+    .input-group label {
+      display: block; font-family: 'Cinzel', serif; font-size: 9px;
+      letter-spacing: 2px; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 8px;
+    }
+    .input-group select, .input-group input {
+      width: 100%; padding: 12px 16px;
+      border: 1px solid var(--gold-light); background: var(--white);
+      font-family: 'Raleway', sans-serif; font-size: 14px; color: var(--ink);
+      outline: none; transition: border-color 0.2s;
+      appearance: none;
+    }
+    .input-group select:focus, .input-group input:focus { border-color: var(--gold); }
+
+    /* ── CALCULATE BUTTON ── */
+    .btn-calc {
+      display: block; width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      border: none; cursor: pointer; font-family: 'Cinzel', serif;
+      font-size: 11px; letter-spacing: 3px; color: var(--white);
+      text-transform: uppercase; margin-bottom: 48px;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .btn-calc:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    /* ── RESULTS ── */
+    #results { display: none; animation: fadeUp 0.6s ease forwards; }
+
+    .results-header {
+      text-align: center; margin-bottom: 32px;
+    }
+    .results-country-name {
+      font-family: 'Cormorant Garamond', serif; font-size: 28px;
+      font-weight: 300; font-style: italic; color: var(--gold-dark);
+    }
+    .results-flag { font-size: 40px; display: block; margin-bottom: 8px; }
+
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+
+    .result-card {
+      background: var(--white); border: 1px solid var(--gold-light);
+      padding: 24px 20px; position: relative; overflow: hidden;
+    }
+    .result-card::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 3px; height: 100%;
+    }
+    .result-card.gold::before   { background: var(--gold); }
+    .result-card.green::before  { background: var(--green); }
+    .result-card.blue::before   { background: var(--blue); }
+    .result-card.red::before    { background: var(--red); }
+
+    .result-label {
+      font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px;
+    }
+    .result-value {
+      font-family: 'Cormorant Garamond', serif; font-size: 28px;
+      font-weight: 400; color: var(--ink); line-height: 1;
+    }
+    .result-value.positive { color: var(--green); }
+    .result-value.negative { color: var(--red); }
+    .result-sub { font-family: 'Raleway', sans-serif; font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+
+    /* ── BREAKDOWN TABLE ── */
+    .breakdown {
+      background: var(--white); border: 1px solid var(--gold-light);
+      margin-bottom: 32px; overflow: hidden;
+    }
+    .breakdown-header {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      padding: 14px 20px; font-family: 'Cinzel', serif;
+      font-size: 10px; letter-spacing: 3px; color: var(--white); text-transform: uppercase;
+    }
+    .breakdown table { width: 100%; border-collapse: collapse; }
+    .breakdown td, .breakdown th {
+      padding: 12px 20px; font-size: 13px; border-bottom: 1px solid var(--cream-dark);
+      text-align: left;
+    }
+    .breakdown th { font-family: 'Cinzel', serif; font-size: 8px; letter-spacing: 2px; color: var(--gold-dark); text-transform: uppercase; background: #FFFDF5; }
+    .breakdown td:last-child { text-align: right; font-weight: 500; }
+    .breakdown tr:last-child td { border-bottom: none; }
+    .breakdown .total-row td { font-family: 'Cinzel', serif; font-size: 11px; letter-spacing: 1px; background: #FFFDF5; border-top: 1px solid var(--gold-light); }
+
+    /* ── RISK INDICATOR ── */
+    .risk-bar-wrap { background: var(--white); border: 1px solid var(--gold-light); padding: 24px; margin-bottom: 32px; }
+    .risk-title { font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 2px; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 16px; }
+    .risk-track { height: 8px; background: var(--cream-dark); border-radius: 0; position: relative; margin-bottom: 8px; }
+    .risk-fill { height: 100%; border-radius: 0; transition: width 1s ease; }
+    .risk-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--ink-soft); }
+    .risk-verdict { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-style: italic; margin-top: 12px; }
+
+    /* ── COUNTRY FACTS ── */
+    .facts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 32px; }
+    .fact-pill {
+      background: var(--white); border: 1px solid var(--gold-light);
+      padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+    }
+    .fact-icon { font-size: 20px; }
+    .fact-text { font-size: 12px; color: var(--ink-soft); line-height: 1.4; }
+    .fact-text strong { display: block; font-family: 'Cinzel', serif; font-size: 9px; letter-spacing: 1px; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 2px; }
+
+    /* ── RESET ── */
+    .btn-reset {
+      display: block; width: 100%; padding: 14px;
+      background: transparent; border: 1px solid var(--gold);
+      cursor: pointer; font-family: 'Cinzel', serif;
+      font-size: 10px; letter-spacing: 3px; color: var(--gold-dark);
+      text-transform: uppercase; transition: all 0.2s;
+    }
+    .btn-reset:hover { background: var(--gold); color: var(--white); }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .animate { opacity: 0; animation: fadeUp 0.6s ease forwards; }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <a class="nav-back" href="index.html">← Înapoi</a>
+
+  <header>
+    <p class="label-top">Instrument Interactiv</p>
+    <h1>Simulator <em>Comerț Internațional</em></h1>
+    <p class="subtitle">Selectează o țară și analizează condițiile de import-export în timp real</p>
+  </header>
+
+  <div class="divider"><div class="divider-line"></div><span class="divider-icon">✦</span><div class="divider-line"></div></div>
+
+  <!-- STEP 1 -->
+  <div id="step1">
+    <p class="section-label">01 — Selectează țara partenere</p>
+    <div class="country-grid" id="countryGrid"></div>
+
+    <p class="section-label">02 — Parametrii tranzacției</p>
+    <div class="inputs-row">
+      <div class="input-group">
+        <label>Categorie produs</label>
+        <select id="productSelect">
+          <option value="electronics">Electronică și tehnologie</option>
+          <option value="textiles">Textile și îmbrăcăminte</option>
+          <option value="food">Produse alimentare</option>
+          <option value="automotive">Piese auto</option>
+          <option value="chemicals">Produse chimice</option>
+          <option value="machinery">Utilaje industriale</option>
+        </select>
+      </div>
+      <div class="input-group">
+        <label>Valoare marfă (EUR)</label>
+        <input type="number" id="valueInput" value="10000" min="100" max="10000000"/>
+      </div>
+    </div>
+
+    <button class="btn-calc" onclick="calculate()">✦ &nbsp; Calculează Simularea</button>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <div class="results-header">
+      <span class="results-flag" id="resFlag"></span>
+      <div class="results-country-name" id="resCountry"></div>
+      <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-top:6px;" id="resRoute"></div>
+    </div>
+
+    <div class="results-grid">
+      <div class="result-card gold">
+        <div class="result-label">Curs valutar</div>
+        <div class="result-value" id="resRate"></div>
+        <div class="result-sub" id="resRateSub"></div>
+      </div>
+      <div class="result-card blue">
+        <div class="result-label">Taxă vamală</div>
+        <div class="result-value" id="resTariff"></div>
+        <div class="result-sub" id="resTariffSub"></div>
+      </div>
+      <div class="result-card green">
+        <div class="result-label">Profit estimat</div>
+        <div class="result-value positive" id="resProfit"></div>
+        <div class="result-sub" id="resProfitSub"></div>
+      </div>
+      <div class="result-card red">
+        <div class="result-label">Cost total tranzacție</div>
+        <div class="result-value" id="resCost"></div>
+        <div class="result-sub" id="resCostSub"></div>
+      </div>
+    </div>
+
+    <div class="breakdown">
+      <div class="breakdown-header">Detaliu Costuri</div>
+      <table>
+        <tr><th>Componentă</th><th>Rată</th><th>Valoare (EUR)</th></tr>
+        <tbody id="breakdownBody"></tbody>
+        <tr class="total-row">
+          <td colspan="2">TOTAL COSTURI</td>
+          <td id="breakdownTotal"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="risk-bar-wrap">
+      <div class="risk-title">Indicator de Risc Comercial</div>
+      <div class="risk-track"><div class="risk-fill" id="riskFill"></div></div>
+      <div class="risk-labels"><span>Risc Scăzut</span><span>Risc Mediu</span><span>Risc Ridicat</span></div>
+      <div class="risk-verdict" id="riskVerdict"></div>
+    </div>
+
+    <p class="section-label">Date economice țară</p>
+    <div class="facts-grid" id="factsGrid"></div>
+
+    <button class="btn-reset" onclick="reset()">← Simulare nouă</button>
+  </div>
+
+</div>
+
+<script>
+const COUNTRIES = [
+  { id:'de', name:'Germania',     flag:'🇩🇪', currency:'EUR', rate:1.00,    tariff:{electronics:0,textiles:12,food:15,automotive:6.5,chemicals:5,machinery:1.7}, risk:15, gdp:'4.1 tril. USD', trade:'2.8 tril. USD', membership:'UE', transport:'3-5 zile', facts:['Economie industrială puternică','Standard ridicat de reglementare','Zero taxe vamale intra-UE'] },
+  { id:'cn', name:'China',        flag:'🇨🇳', currency:'CNY', rate:7.82,   tariff:{electronics:8,textiles:14,food:18,automotive:25,chemicals:10,machinery:8},   risk:62, gdp:'17.9 tril. USD', trade:'6.3 tril. USD', membership:'OMC', transport:'25-40 zile', facts:['Cel mai mare exportator mondial','Bariere netarifare semnificative','Volatilitate valutară moderată'] },
+  { id:'us', name:'SUA',          flag:'🇺🇸', currency:'USD', rate:1.08,   tariff:{electronics:0,textiles:12,food:5,automotive:2.5,chemicals:4,machinery:2},    risk:28, gdp:'25.4 tril. USD', trade:'4.9 tril. USD', membership:'OMC', transport:'10-15 zile', facts:['Dolar — monedă de rezervă globală','Sistem juridic comercial robust','Tarife variabile pe produs'] },
+  { id:'jp', name:'Japonia',      flag:'🇯🇵', currency:'JPY', rate:158.4,  tariff:{electronics:0,textiles:8,food:22,automotive:0,chemicals:3,machinery:0},      risk:22, gdp:'4.2 tril. USD', trade:'1.7 tril. USD', membership:'OMC', transport:'15-20 zile', facts:['Standard înalt de calitate','Piață conservatoare dar stabilă','Yen — monedă de refugiu'] },
+  { id:'gb', name:'Marea Britanie',flag:'🇬🇧', currency:'GBP', rate:0.86, tariff:{electronics:3.5,textiles:12,food:18,automotive:6.5,chemicals:5,machinery:2},  risk:35, gdp:'3.0 tril. USD', trade:'1.2 tril. USD', membership:'—',  transport:'4-6 zile', facts:['Post-Brexit — noi formalități vamale','Liră stabilă, inflație ridicată','Piață deschisă serviciilor financiare'] },
+  { id:'ae', name:'Emirate',      flag:'🇦🇪', currency:'AED', rate:3.97,   tariff:{electronics:5,textiles:5,food:5,automotive:5,chemicals:5,machinery:5},       risk:20, gdp:'0.5 tril. USD', trade:'0.8 tril. USD', membership:'OMC', transport:'8-12 zile', facts:['Hub logistic global','Tarife uniforme de 5%','Zero impozit pe profit'] },
+  { id:'br', name:'Brazilia',     flag:'🇧🇷', currency:'BRL', rate:5.41,   tariff:{electronics:16,textiles:35,food:10,automotive:35,chemicals:12,machinery:14},  risk:72, gdp:'1.9 tril. USD', trade:'0.6 tril. USD', membership:'Mercosur', transport:'20-30 zile', facts:['Birocrație vamală complexă','Cel mai mare PIB din America Latină','Volatilitate valutară ridicată'] },
+  { id:'in', name:'India',        flag:'🇮🇳', currency:'INR', rate:89.2,   tariff:{electronics:20,textiles:20,food:30,automotive:100,chemicals:8,machinery:7.5}, risk:55, gdp:'3.5 tril. USD', trade:'1.4 tril. USD', membership:'OMC', transport:'18-25 zile', facts:['Creștere economică rapidă','Tarife protecționiste ridicate','Piață de 1.4 miliarde consumatori'] },
+];
+
+const PRODUCT_MARGIN = { electronics:0.22, textiles:0.35, food:0.18, automotive:0.28, chemicals:0.20, machinery:0.30 };
+const PRODUCT_NAMES  = { electronics:'Electronică', textiles:'Textile', food:'Alimentar', automotive:'Auto', chemicals:'Chimice', machinery:'Utilaje' };
+
+let selectedCountry = null;
+
+// Build country grid
+const grid = document.getElementById('countryGrid');
+COUNTRIES.forEach(c => {
+  const card = document.createElement('div');
+  card.className = 'country-card';
+  card.innerHTML = `<span class="country-flag">${c.flag}</span><div class="country-name">${c.name}</div>`;
+  card.onclick = () => {
+    document.querySelectorAll('.country-card').forEach(x => x.classList.remove('active'));
+    card.classList.add('active');
+    selectedCountry = c;
+  };
+  grid.appendChild(card);
+});
+
+function fmt(n) { return new Intl.NumberFormat('ro-RO', {minimumFractionDigits:2, maximumFractionDigits:2}).format(n); }
+
+function calculate() {
+  if (!selectedCountry) { alert('Te rog selectează o țară!'); return; }
+  const c = selectedCountry;
+  const product = document.getElementById('productSelect').value;
+  const value = parseFloat(document.getElementById('valueInput').value) || 10000;
+
+  const tariffRate = c.tariff[product] / 100;
+  const tariffAmt  = value * tariffRate;
+  const vatRate    = 0.19;
+  const vatAmt     = (value + tariffAmt) * vatRate;
+  const shippingAmt = Math.round(value * 0.035 * 10) / 10;
+  const insuranceAmt = Math.round(value * 0.008 * 100) / 100;
+  const customsFee  = Math.round(value * 0.005 * 100) / 100;
+  const totalCost   = tariffAmt + vatAmt + shippingAmt + insuranceAmt + customsFee;
+  const marginRate  = PRODUCT_MARGIN[product];
+  const revenue     = (value + totalCost) * (1 + marginRate);
+  const profit      = revenue - value - totalCost;
+  const profitPct   = ((profit / value) * 100).toFixed(1);
+
+  // Risk color
+  const risk = c.risk;
+  let riskColor = risk < 30 ? '#2D7A4F' : risk < 55 ? '#C9A84C' : '#8B2020';
+  let riskText  = risk < 30 ? 'Risc comercial scăzut — condiții favorabile de tranzacționare.'
+                : risk < 55 ? 'Risc comercial moderat — necesită monitorizare activă.'
+                :              'Risc comercial ridicat — se recomandă prudență și asigurare extinsă.';
+
+  // Fill results
+  document.getElementById('resFlag').textContent    = c.flag;
+  document.getElementById('resCountry').textContent = c.name;
+  document.getElementById('resRoute').textContent   = `România → ${c.name} · ${PRODUCT_NAMES[product]}`;
+
+  document.getElementById('resRate').textContent    = `1 EUR = ${fmt(c.rate)} ${c.currency}`;
+  document.getElementById('resRateSub').textContent = `Valoare în ${c.currency}: ${fmt(value * c.rate)}`;
+
+  document.getElementById('resTariff').textContent    = `${c.tariff[product]}%`;
+  document.getElementById('resTariffSub').textContent = `${fmt(tariffAmt)} EUR pe această marfă`;
+
+  document.getElementById('resProfit').textContent    = `+${fmt(profit)} EUR`;
+  document.getElementById('resProfitSub').textContent = `Marjă netă estimată: ${profitPct}%`;
+
+  document.getElementById('resCost').textContent    = `${fmt(totalCost)} EUR`;
+  document.getElementById('resCostSub').textContent  = `${((totalCost/value)*100).toFixed(1)}% din valoarea mărfii`;
+
+  // Breakdown
+  const tbody = document.getElementById('breakdownBody');
+  tbody.innerHTML = `
+    <tr><td>Valoare marfă inițială</td><td>—</td><td>${fmt(value)} EUR</td></tr>
+    <tr><td>Taxă vamală de import</td><td>${c.tariff[product]}%</td><td>${fmt(tariffAmt)} EUR</td></tr>
+    <tr><td>TVA import</td><td>19%</td><td>${fmt(vatAmt)} EUR</td></tr>
+    <tr><td>Transport internațional</td><td>3.5%</td><td>${fmt(shippingAmt)} EUR</td></tr>
+    <tr><td>Asigurare marfă</td><td>0.8%</td><td>${fmt(insuranceAmt)} EUR</td></tr>
+    <tr><td>Taxe vamale administrative</td><td>0.5%</td><td>${fmt(customsFee)} EUR</td></tr>
+  `;
+  document.getElementById('breakdownTotal').textContent = `${fmt(totalCost)} EUR`;
+
+  // Risk bar
+  document.getElementById('riskFill').style.width = risk + '%';
+  document.getElementById('riskFill').style.background = riskColor;
+  document.getElementById('riskVerdict').textContent = riskText;
+  document.getElementById('riskVerdict').style.color = riskColor;
+
+  // Facts
+  const factsGrid = document.getElementById('factsGrid');
+  const factItems = [
+    { icon:'🏦', label:'PIB Național', val: c.gdp },
+    { icon:'🚢', label:'Volum Comerț', val: c.trade },
+    { icon:'🌐', label:'Apartenența', val: c.membership },
+    { icon:'⏱️', label:'Transport Est.', val: c.transport },
+    { icon:'💱', label:'Monedă', val: c.currency },
+    { icon:'⚠️', label:'Profil Risc', val: risk < 30 ? 'Scăzut' : risk < 55 ? 'Moderat' : 'Ridicat' },
+  ];
+  factsGrid.innerHTML = factItems.map(f =>
+    `<div class="fact-pill"><span class="fact-icon">${f.icon}</span><div class="fact-text"><strong>${f.label}</strong>${f.val}</div></div>`
+  ).join('');
+
+  // Show results
+  document.getElementById('step1').style.display = 'none';
+  const res = document.getElementById('results');
+  res.style.display = 'block';
+  res.style.opacity = '0';
+  setTimeout(() => { res.style.transition = 'opacity 0.5s ease'; res.style.opacity = '1'; }, 50);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function reset() {
+  selectedCountry = null;
+  document.querySelectorAll('.country-card').forEach(x => x.classList.remove('active'));
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('step1').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
