@@ -83,6 +83,24 @@
     select:focus, input:focus { border-color:var(--gold); }
     select option { background:#0D1B2A; }
 
+    /* ── TOGGLE EXPORT/IMPORT ── */
+    .dir-toggle {
+      display:grid; grid-template-columns:1fr 1fr;
+      border:1px solid rgba(201,168,76,0.25); margin-bottom:2px; overflow:hidden;
+    }
+    .dir-btn {
+      padding:10px 6px; background:transparent; border:none; cursor:pointer;
+      font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px;
+      color:rgba(255,255,255,0.4); text-transform:uppercase;
+      transition:all .2s; display:flex; align-items:center; justify-content:center; gap:6px;
+    }
+    .dir-btn.active {
+      background:linear-gradient(135deg,var(--gold-dark),var(--gold));
+      color:#fff;
+    }
+    .dir-btn:not(.active):hover { background:rgba(201,168,76,0.08); color:rgba(255,255,255,0.7); }
+    .dir-arrow { font-size:14px; }
+
     .btn-calc {
       width:100%; padding:13px; margin-top:20px;
       background:linear-gradient(135deg,var(--gold-dark),var(--gold));
@@ -226,6 +244,16 @@
     <div class="panel-body">
       <!-- FORM -->
       <div id="inputForm">
+        <div class="field-label">Direcție tranzacție</div>
+        <div class="dir-toggle">
+          <button class="dir-btn active" id="btnExport" onclick="setDir('export')">
+            <span class="dir-arrow">📤</span> Export
+          </button>
+          <button class="dir-btn" id="btnImport" onclick="setDir('import')">
+            <span class="dir-arrow">📥</span> Import
+          </button>
+        </div>
+
         <div class="field-label">Țara parteneră</div>
         <div class="country-select-wrap">
           <select id="countrySelect" onchange="onDropdownSelect(this.value)">
@@ -530,46 +558,88 @@ function animateRoute(from, to){
 /* ── CALCULATE ── */
 function fmt(n){ return new Intl.NumberFormat('ro-RO',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n); }
 
+let tradeDir = 'export'; // 'export' | 'import'
+
+function setDir(dir){
+  tradeDir = dir;
+  document.getElementById('btnExport').classList.toggle('active', dir==='export');
+  document.getElementById('btnImport').classList.toggle('active', dir==='import');
+}
+
 function calculate(){
   if(!selId) return;
   const c=CDATA[selId];
   const prod=document.getElementById('productSelect').value;
   const val=parseFloat(document.getElementById('valueInput').value)||10000;
+  const isImport = tradeDir === 'import';
 
-  const tRate=c.tariff[prod]/100;
-  const tAmt=val*tRate;
-  const vatAmt=(val+tAmt)*0.19;
-  const ship=val*0.035, ins=val*0.008, customs=val*0.005;
-  const total=tAmt+vatAmt+ship+ins+customs;
-  const profit=(val+total)*(1+PRODUCT_MARGIN[prod])-val-total;
-  const profPct=((profit/val)*100).toFixed(1);
-  const risk=c.risk;
+  // ── EXPORT: România trimite marfă → taxele vamale sunt ale ȚĂRII DESTINAȚIE
+  // ── IMPORT: România primește marfă → taxele vamale sunt ale ROMÂNIEI (19% TVA + taxe RO)
+  const tRate = c.tariff[prod]/100;
+  const tAmt  = val * tRate;
 
-  animateRoute(RO_COORD, c.cap);
+  // La import taxele vamale sunt mai mici (RO în UE = tarif extern comun ~4% medie)
+  const roTariffRate = isImport ? 0.04 : 0;
+  const roTariffAmt  = isImport ? val * roTariffRate : 0;
+  const vatAmt  = isImport ? (val + roTariffAmt) * 0.19 : (val + tAmt) * 0.19;
+  const ship    = val * 0.035;
+  const ins     = val * 0.008;
+  const customs = val * 0.005;
+
+  // cost total diferit per direcție
+  const total = isImport
+    ? roTariffAmt + vatAmt + ship + ins + customs
+    : tAmt + vatAmt + ship + ins + customs;
+
+  const profit = (val + total) * (1 + PRODUCT_MARGIN[prod]) - val - total;
+  const profPct = ((profit/val)*100).toFixed(1);
+  const risk = c.risk;
+
+  // Ruta: export = RO→țară, import = țară→RO
+  const fromCoord = isImport ? c.cap : RO_COORD;
+  const toCoord   = isImport ? RO_COORD : c.cap;
+  animateRoute(fromCoord, toCoord);
 
   document.getElementById('inputForm').style.display='none';
   const rp=document.getElementById('resultsPanel');
   rp.style.display='block'; rp.classList.add('fade-in');
 
-  document.getElementById('resRoute').textContent=`România → ${c.name}`;
-  document.getElementById('rRate').textContent=`1 EUR = ${fmt(c.rate)} ${c.currency}`;
-  document.getElementById('rRateSub').textContent=`${fmt(val*c.rate)} ${c.currency}`;
-  document.getElementById('rTariff').textContent=`${c.tariff[prod]}%`;
-  document.getElementById('rTariffSub').textContent=`${fmt(tAmt)} EUR`;
-  document.getElementById('rProfit').textContent=`+${fmt(profit)} EUR`;
-  document.getElementById('rProfitSub').textContent=`Marjă: ${profPct}%`;
-  document.getElementById('rCost').textContent=`${fmt(total)} EUR`;
-  document.getElementById('rCostSub').textContent=`${((total/val)*100).toFixed(1)}% din marfă`;
+  const routeLabel = isImport ? `${c.name} → România` : `România → ${c.name}`;
+  document.getElementById('resRoute').textContent = routeLabel;
 
-  document.getElementById('bdown').innerHTML=[
-    ['Taxă vamală',`${c.tariff[prod]}%`,tAmt],
-    ['TVA import','19%',vatAmt],
-    ['Transport','3.5%',ship],
-    ['Asigurare','0.8%',ins],
-    ['Taxe admin.','0.5%',customs],
-  ].map(([l,r,v])=>
+  document.getElementById('rRate').textContent    = `1 EUR = ${fmt(c.rate)} ${c.currency}`;
+  document.getElementById('rRateSub').textContent = `${fmt(val*c.rate)} ${c.currency}`;
+
+  if(isImport){
+    document.getElementById('rTariff').textContent    = `${(roTariffRate*100).toFixed(0)}%`;
+    document.getElementById('rTariffSub').textContent = `Tarif vamal RO (UE)`;
+  } else {
+    document.getElementById('rTariff').textContent    = `${c.tariff[prod]}%`;
+    document.getElementById('rTariffSub').textContent = `Tarif vamal ${c.name}`;
+  }
+
+  document.getElementById('rProfit').textContent    = `+${fmt(profit)} EUR`;
+  document.getElementById('rProfitSub').textContent = `Marjă: ${profPct}%`;
+  document.getElementById('rCost').textContent      = `${fmt(total)} EUR`;
+  document.getElementById('rCostSub').textContent   = `${((total/val)*100).toFixed(1)}% din marfă`;
+
+  const brows = isImport ? [
+    ['Tarif vamal RO (UE)', `${(roTariffRate*100).toFixed(0)}%`, roTariffAmt],
+    ['TVA import (RO)',     '19%',   vatAmt],
+    ['Transport intern.',   '3.5%',  ship],
+    ['Asigurare marfă',    '0.8%',  ins],
+    ['Taxe admin.',        '0.5%',  customs],
+  ] : [
+    [`Taxă vamală ${c.name}`, `${c.tariff[prod]}%`, tAmt],
+    ['TVA la destinație',     '19%',  vatAmt],
+    ['Transport intern.',      '3.5%', ship],
+    ['Asigurare marfă',       '0.8%', ins],
+    ['Taxe admin.',           '0.5%', customs],
+  ];
+
+  document.getElementById('bdown').innerHTML = brows.map(([l,r,v])=>
     `<div class="brow"><span>${l} <span style="color:rgba(255,255,255,0.28)">${r}</span></span><span class="v">${fmt(v)} €</span></div>`
-  ).join('')+`<div class="brow tot"><span>TOTAL COSTURI</span><span>${fmt(total)} €</span></div>`;
+  ).join('') + `<div class="brow tot"><span>TOTAL COSTURI</span><span>${fmt(total)} €</span></div>`;
 
   const rCol=risk<30?'#5DBF8A':risk<55?'#C9A84C':'#E07070';
   const rTxt=risk<30?'Condiții favorabile de tranzacționare.':risk<55?'Risc moderat — monitorizare activă.':'Risc ridicat — prudență și asigurare extinsă.';
@@ -582,10 +652,11 @@ function calculate(){
     ['PIB',c.gdp],['Comerț',c.trade],['Organizație',c.org],['Transport',c.transport],['Monedă',c.currency],['Risc',risk<30?'Scăzut':risk<55?'Moderat':'Ridicat']
   ].map(([l,v])=>`<div class="fact-mini"><strong>${l}</strong>${v}</div>`).join('');
 
-  document.getElementById('mapHint').textContent=`✦  Ruta animată: România → ${c.name}  ✦`;
+  document.getElementById('mapHint').textContent=`✦  ${isImport?'Import':'Export'}: ${routeLabel}  ✦`;
 }
 
 function resetSim(){
+  setDir('export');
   if(selId){
     d3.selectAll('.country-path').filter(d=>String(d.id).padStart(3,'0')===selId)
       .classed('selected',false).attr('fill','#1B3550');
